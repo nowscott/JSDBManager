@@ -35,4 +35,8 @@ yarn-error.log*
 # 其他
 .eslintcache
 .npm
-.yarn-integrity 
+.yarn-integrity
+
+# 所有以.开头的文件和目录
+.*
+!.gitignore  # 但是保留 .gitignore 文件 
