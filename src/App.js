@@ -5,6 +5,7 @@ import SymbolList from './components/SymbolList';
 import { readJSFile } from './utils/fileHandler';
 import { pinyin } from 'pinyin-pro';
 import './styles.css';
+import { v4 as uuidv4 } from 'uuid';
 
 const App = () => {
   const [data, setData] = useState({ symbols: [] });
@@ -81,6 +82,15 @@ const App = () => {
     setData({ ...data, symbols: newSymbols });
   };
 
+  const handleRegenerateIds = () => {
+    const newSymbols = data.symbols.map(symbol => ({
+      ...symbol,
+      id: uuidv4()
+    }));
+    
+    setData({ ...data, symbols: newSymbols });
+  };
+
   return (
     <div className="container">
       <header className="header">
@@ -91,6 +101,8 @@ const App = () => {
         onUpload={handleFileUpload} 
         onDownload={handleDownload}
         onAddPinyin={handleAddPinyin}
+        onRegenerateIds={handleRegenerateIds}
+        data={data}
       />
       
       <div className="content-wrapper">

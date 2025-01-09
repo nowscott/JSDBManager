@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileUploader = ({ onUpload, onDownload, onAddPinyin }) => {
+const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, data }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -29,6 +29,7 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin }) => {
         <button 
           onClick={onAddPinyin}
           className="operation-button pinyin-button"
+          disabled={!data?.symbols?.length}
         >
           添加拼音
         </button>
@@ -39,8 +40,20 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin }) => {
         <button 
           onClick={onDownload} 
           className="operation-button download-button"
+          disabled={!data?.symbols?.length}
         >
           下载文件
+        </button>
+      </div>
+
+      <div className="operation-box">
+        <h3>整理 ID</h3>
+        <button 
+          onClick={onRegenerateIds} 
+          className="operation-button regenerate-button"
+          disabled={!data?.symbols?.length}
+        >
+          生成新 ID
         </button>
       </div>
     </div>

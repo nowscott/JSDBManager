@@ -362,4 +362,45 @@
   background: linear-gradient(to bottom, #1976D2, #1565C0);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+/* 生成新 ID 按钮 */
+.regenerate-button {
+  background: linear-gradient(to bottom, #2196F3, #1976D2);
+}
+
+.regenerate-button:hover {
+  background: linear-gradient(to bottom, #1976D2, #1565C0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.regenerate-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 确保所有操作按钮都有基本样式 */
+.operation-button {
+  min-width: 160px;
+  height: 46px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.operation-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 } 

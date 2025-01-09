@@ -5,9 +5,10 @@
   "dependencies": {
     "pinyin": "^4.0.0-alpha.2",
     "pinyin-pro": "^3.26.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
