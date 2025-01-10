@@ -91,6 +91,24 @@ const App = () => {
     setData({ ...data, symbols: newSymbols });
   };
 
+  const sortSymbols = (result) => {
+    return result.sort((a, b) => {
+      const aLength = (a.notes || '').length;
+      const bLength = (b.notes || '').length;
+      
+      return aLength - bLength;
+    });
+  };
+
+  const handleSort = () => {
+    if (!data.symbols) return;
+    const sortedSymbols = sortSymbols([...data.symbols]);
+    setData(prev => ({
+      ...prev,
+      symbols: sortedSymbols
+    }));
+  };
+
   return (
     <div className="container">
       <header className="header">
@@ -102,6 +120,7 @@ const App = () => {
         onDownload={handleDownload}
         onAddPinyin={handleAddPinyin}
         onRegenerateIds={handleRegenerateIds}
+        onSort={handleSort}
         data={data}
       />
       

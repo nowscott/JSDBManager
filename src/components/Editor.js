@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const Editor = ({ symbol, onSave }) => {
   const [formData, setFormData] = useState({
     symbol: '',
-    category: '',
+    category: [],
     description: '',
     notes: '',
     searchTerms: []
@@ -15,7 +15,7 @@ const Editor = ({ symbol, onSave }) => {
     } else {
       setFormData({
         symbol: '',
-        category: '',
+        category: [],
         description: '',
         notes: '',
         searchTerms: []
@@ -29,7 +29,7 @@ const Editor = ({ symbol, onSave }) => {
     if (!symbol) {  // 如果是新增，则清空表单
       setFormData({
         symbol: '',
-        category: '',
+        category: [],
         description: '',
         notes: '',
         searchTerms: []
@@ -41,7 +41,9 @@ const Editor = ({ symbol, onSave }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'searchTerms' ? value.split(',').map(term => term.trim()) : value
+      [name]: name === 'searchTerms' ? value.split(',').map(term => term.trim()) :
+              name === 'category' ? value.split(',').map(cat => cat.trim()) :
+              value
     }));
   };
 
@@ -61,11 +63,11 @@ const Editor = ({ symbol, onSave }) => {
         </div>
         
         <div className="form-group">
-          <label>分类</label>
+          <label>分类（用逗号分隔多个分类）</label>
           <input
             type="text"
             name="category"
-            value={formData.category}
+            value={formData.category.join(', ')}
             onChange={handleChange}
             required
           />

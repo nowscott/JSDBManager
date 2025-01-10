@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, data }) => {
+const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, onSort, data }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -54,6 +54,17 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, data
           disabled={!data?.symbols?.length}
         >
           生成新 ID
+        </button>
+      </div>
+
+      <div className="operation-box">
+        <h3>Unicode 排序</h3>
+        <button 
+          onClick={onSort} 
+          className="operation-button sort-button"
+          disabled={!data?.symbols?.length}
+        >
+          排序符号
         </button>
       </div>
     </div>

@@ -403,4 +403,18 @@
 .operation-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.sort-button {
+  background-color: #8e44ad;
+  color: white;
+}
+
+.sort-button:hover {
+  background-color: #732d91;
+}
+
+.sort-button:disabled {
+  background-color: #d5b8e0;
+  cursor: not-allowed;
 } 

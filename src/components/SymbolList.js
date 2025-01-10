@@ -15,7 +15,11 @@ const SymbolList = ({ symbols, onSelect, currentSymbolId }) => {
           >
             <div className="symbol-main">
               <span className="symbol-char">{symbol.symbol}</span>
-              <span className="symbol-category">{symbol.category}</span>
+              <span className="symbol-category">
+                {Array.isArray(symbol.category) 
+                  ? symbol.category.join(', ') 
+                  : symbol.category}
+              </span>
             </div>
             <div className="symbol-desc">{symbol.description}</div>
           </div>
