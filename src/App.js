@@ -26,20 +26,11 @@ const App = () => {
   };
 
   const handleDownload = () => {
-    const replacer = (key, value) => {
-      if (Array.isArray(value)) {
-        return value;
-      }
-      return value;
-    };
-
-    const content = `module.exports = ${JSON.stringify(data, replacer, 2).replace(
-      /\[\n\s+/g, '['
-    ).replace(
-      /,\n\s+/g, ', '
-    ).replace(
-      /\n\s+\]/g, ']'
-    )};`;
+    let content = JSON.stringify(data, null, 2);
+    
+    content = content.replace(/\[\n\s+(["\w\u4e00-\u9fa5,\s]+)\n\s+\]/g, '[$1]');
+    
+    content = `module.exports = ${content};`;
 
     const blob = new Blob([content], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
