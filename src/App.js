@@ -28,7 +28,7 @@ const App = () => {
   const handleDownload = () => {
     let content = JSON.stringify(data, null, 2);
     
-    content = content.replace(/\[\n\s+(["\w\u4e00-\u9fa5,\s]+)\n\s+\]/g, '[$1]');
+    content = content.replace(/\[\n\s+(".*?"(?:,\n\s+".*?")*)\n\s+\]/g, '[$1]');
     
     content = `module.exports = ${content};`;
 
