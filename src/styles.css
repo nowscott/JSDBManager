@@ -417,4 +417,53 @@
 .sort-button:disabled {
   background-color: #d5b8e0;
   cursor: not-allowed;
+}
+
+.sort-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sort-buttons .sort-button {
+  min-width: 140px;
+}
+
+.export-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.json-button {
+  background: linear-gradient(to bottom, #FF9800, #F57C00);
+}
+
+.json-button:hover {
+  background: linear-gradient(to bottom, #F57C00, #EF6C00);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.2);
+}
+
+.json-button:disabled {
+  background: #FFE0B2;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.data-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.api-button {
+  background: linear-gradient(to bottom, #009688, #00796B);
+}
+
+.api-button:hover {
+  background: linear-gradient(to bottom, #00796B, #00695C);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 150, 136, 0.2);
 } 
