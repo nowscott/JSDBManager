@@ -58,13 +58,13 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, onSo
       </div>
 
       <div className="operation-box">
-        <h3>Unicode 排序</h3>
+        <h3>备注长度排序</h3>
         <button 
           onClick={onSort} 
           className="operation-button sort-button"
           disabled={!data?.symbols?.length}
         >
-          排序符号
+          按备注长度排序
         </button>
       </div>
     </div>

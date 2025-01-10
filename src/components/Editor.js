@@ -25,7 +25,14 @@ const Editor = ({ symbol, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const formattedData = {
+      ...formData,
+      category: formData.category.filter(cat => cat),
+      searchTerms: formData.searchTerms.filter(term => term)
+    };
+    
+    onSave(formattedData);
+    
     if (!symbol) {  // 如果是新增，则清空表单
       setFormData({
         symbol: '',
