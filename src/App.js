@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FileUploader from './components/FileUploader';
 import Editor from './components/Editor';
 import SymbolList from './components/SymbolList';
-import { readJSFile } from './utils/fileHandler';
 import { pinyin } from 'pinyin-pro';
 import './styles.css';
 import { v4 as uuidv4 } from 'uuid';
 import stringify from 'json-stringify-pretty-compact';
 import VersionControl from './components/VersionControl';
+
+const CACHE_KEY = 'symbolData';
+const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
+const CACHE_DURATION = 30 * 60 * 1000; // 30分钟的缓存时间（毫秒）
+const ORIGINAL_URL = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json';
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+const DATA_URL = CORS_PROXY + encodeURIComponent(ORIGINAL_URL);
 
 const App = () => {
   const [data, setData] = useState({ 
@@ -16,6 +22,51 @@ const App = () => {
   });
   const [currentSymbol, setCurrentSymbol] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      // 检查缓存
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const currentTime = new Date().getTime();
+
+      // 如果缓存存在且未过期
+      if (cachedData && cachedTimestamp && 
+          (currentTime - parseInt(cachedTimestamp)) < CACHE_DURATION) {
+        setData(JSON.parse(cachedData));
+        setIsLoading(false);
+        return;
+      }
+
+      // 使用新的 CORS 代理获取数据
+      const response = await fetch(DATA_URL);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const newData = await response.json();
+      
+      // 更新数据和缓存
+      setData(newData);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, currentTime.toString());
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      // 如果获取失败但有缓存，使用缓存的数据
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (cachedData) {
+        setData(JSON.parse(cachedData));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const updateVersion = (type) => {
     const [major, minor, patch] = data.version.split('.').map(Number);
@@ -35,8 +86,8 @@ const App = () => {
         return;
     }
     
-    setData(prev => ({
-      ...prev,
+    setData(prevData => ({
+      ...prevData,
       version: newVersion
     }));
   };
@@ -90,19 +141,23 @@ const App = () => {
   };
 
   const handleSymbolSave = (symbolData) => {
-    const newSymbols = [...data.symbols];
-    const index = newSymbols.findIndex(s => s.id === symbolData.id);
-    
-    if (index >= 0) {
-      newSymbols[index] = symbolData;
+    let newSymbols;
+    if (symbolData.id) {
+      newSymbols = data.symbols.map(s => 
+        s.id === symbolData.id ? symbolData : s
+      );
     } else {
-      newSymbols.push({
-        ...symbolData,
-        id: String(Date.now())
-      });
+      symbolData.id = uuidv4();
+      newSymbols = [...data.symbols, symbolData];
     }
     
-    setData({ ...data, symbols: newSymbols });
+    const newData = {
+      ...data,
+      symbols: newSymbols
+    };
+    
+    setData(newData);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
     setCurrentSymbol(null);
   };
 
@@ -245,18 +300,22 @@ const App = () => {
     });
   };
 
+  if (isLoading) {
+    return <div className="loading">加载中...</div>;
+  }
+
   return (
     <div className="container">
-      <header className="header">
-        <h1>JSDBManager</h1>
+      <div className="header">
+        <h1>符号数据管理器</h1>
         <VersionControl 
-          version={data.version} 
+          version={data.version}
           onUpdate={updateVersion}
         />
-      </header>
+      </div>
       
       <FileUploader 
-        onUpload={handleFileUpload} 
+        onUpload={handleFileUpload}
         onDownload={handleDownload}
         onAddPinyin={handleAddPinyin}
         onRegenerateIds={handleRegenerateIds}

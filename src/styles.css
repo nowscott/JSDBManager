@@ -570,3 +570,12 @@ label.operation-button {
 .search-input::placeholder {
   color: #999;
 } 
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2em;
+  color: #666;
+} 
