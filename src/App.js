@@ -26,7 +26,21 @@ const App = () => {
   };
 
   const handleDownload = () => {
-    const content = `module.exports = ${JSON.stringify(data, null, 2)};`;
+    const replacer = (key, value) => {
+      if (Array.isArray(value)) {
+        return value;
+      }
+      return value;
+    };
+
+    const content = `module.exports = ${JSON.stringify(data, replacer, 2).replace(
+      /\[\n\s+/g, '['
+    ).replace(
+      /,\n\s+/g, ', '
+    ).replace(
+      /\n\s+\]/g, ']'
+    )};`;
+
     const blob = new Blob([content], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
