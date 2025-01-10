@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, onSort, onExportJson, onLoadFromApi, data }) => {
+const FileUploader = ({ onUpload, onAddPinyin, onRegenerateIds, onSort, onExportJson, data }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -15,19 +15,20 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, onSo
         <div className="data-buttons">
           <input 
             type="file" 
-            accept=".js" 
+            accept=".json"
             onChange={handleFileChange}
             style={{ display: 'none' }}
             id="file-input"
           />
           <label htmlFor="file-input" className="operation-button upload-button">
-            上传文件
+            导入 JSON
           </label>
           <button 
-            onClick={onLoadFromApi}
-            className="operation-button api-button"
+            onClick={onExportJson} 
+            className="operation-button json-button"
+            disabled={!data?.symbols?.length}
           >
-            从 API 加载
+            导出 JSON
           </button>
         </div>
       </div>
@@ -70,26 +71,6 @@ const FileUploader = ({ onUpload, onDownload, onAddPinyin, onRegenerateIds, onSo
             disabled={!data?.symbols?.length}
           >
             按类别排序
-          </button>
-        </div>
-      </div>
-
-      <div className="operation-box">
-        <h3>导出</h3>
-        <div className="export-buttons">
-          <button 
-            onClick={onDownload} 
-            className="operation-button download-button"
-            disabled={!data?.symbols?.length}
-          >
-            导出 JS
-          </button>
-          <button 
-            onClick={onExportJson} 
-            className="operation-button json-button"
-            disabled={!data?.symbols?.length}
-          >
-            导出 JSON
           </button>
         </div>
       </div>

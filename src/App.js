@@ -7,22 +7,63 @@ import { pinyin } from 'pinyin-pro';
 import './styles.css';
 import { v4 as uuidv4 } from 'uuid';
 import stringify from 'json-stringify-pretty-compact';
+import VersionControl from './components/VersionControl';
 
 const App = () => {
-  const [data, setData] = useState({ symbols: [] });
+  const [data, setData] = useState({ 
+    version: "1.0.0",
+    symbols: [] 
+  });
   const [currentSymbol, setCurrentSymbol] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const updateVersion = (type) => {
+    const [major, minor, patch] = data.version.split('.').map(Number);
+    let newVersion;
+    
+    switch(type) {
+      case 'major':
+        newVersion = `${major + 1}.0.0`;
+        break;
+      case 'minor':
+        newVersion = `${major}.${minor + 1}.0`;
+        break;
+      case 'patch':
+        newVersion = `${major}.${minor}.${patch + 1}`;
+        break;
+      default:
+        return;
+    }
+    
+    setData(prev => ({
+      ...prev,
+      version: newVersion
+    }));
+  };
 
   const handleFileUpload = async (file) => {
     try {
-      const parsedData = await readJSFile(file);
-      if (parsedData && parsedData.symbols) {
-        setData(parsedData);
-      } else {
-        throw new Error('数据格式不正确');
-      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          if (jsonData && jsonData.symbols) {
+            if (!jsonData.version) {
+              jsonData.version = "1.0.0";
+            }
+            setData(jsonData);
+          } else {
+            throw new Error('数据格式不正确');
+          }
+        } catch (error) {
+          console.error('JSON 解析失败:', error);
+          alert('JSON 解析失败: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
     } catch (error) {
-      console.error('文件解析失败:', error);
-      alert('文件解析失败: ' + error.message);
+      console.error('文件读取失败:', error);
+      alert('文件读取失败: ' + error.message);
     }
   };
 
@@ -160,24 +201,58 @@ const App = () => {
     URL.revokeObjectURL(url);
   };
 
-  const loadFromApi = async () => {
-    try {
-      const response = await fetch('/api/data.json');
-      if (!response.ok) {
-        throw new Error('API 请求失败');
-      }
-      const apiData = await response.json();
-      setData(apiData);
-    } catch (error) {
-      console.error('从 API 加载失败:', error);
-      alert('从 API 加载失败: ' + error.message);
-    }
+  const handleSearch = (term) => {
+    setSearchTerm(term.toLowerCase());
+  };
+
+  const getFilteredSymbols = () => {
+    if (!searchTerm) return data.symbols;
+    
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    return data.symbols.filter(symbol => {
+      // 收集所有可搜索的字段
+      const searchFields = [
+        symbol.symbol,
+        symbol.description,
+        ...(Array.isArray(symbol.category) ? symbol.category : [symbol.category]),
+        ...(symbol.searchTerms || [])
+      ];
+      
+      // 为每个中文字段生成拼音
+      const pinyinFields = searchFields
+        .filter(field => field && /[\u4e00-\u9fa5]/.test(field))
+        .map(field => {
+          // 生成不同形式的拼音以支持更灵活的搜索
+          const pinyinFull = pinyin(field, { toneType: 'none', type: 'string' });
+          const pinyinFirst = pinyin(field, { 
+            pattern: 'first', 
+            toneType: 'none', 
+            type: 'string' 
+          });
+          return [pinyinFull, pinyinFirst];
+        })
+        .flat();
+      
+      // 合并所有可搜索的内容
+      const allSearchableContent = [
+        ...searchFields.map(field => (field || '').toLowerCase()),
+        ...pinyinFields
+      ];
+      
+      // 检查是否有任何字段包含搜索词
+      return allSearchableContent.some(content => content.includes(searchTermLower));
+    });
   };
 
   return (
     <div className="container">
       <header className="header">
         <h1>JSDBManager</h1>
+        <VersionControl 
+          version={data.version} 
+          onUpdate={updateVersion}
+        />
       </header>
       
       <FileUploader 
@@ -187,7 +262,6 @@ const App = () => {
         onRegenerateIds={handleRegenerateIds}
         onSort={handleSort}
         onExportJson={handleExportJson}
-        onLoadFromApi={loadFromApi}
         data={data}
       />
       
@@ -197,9 +271,10 @@ const App = () => {
           onSave={handleSymbolSave}
         />
         <SymbolList 
-          symbols={data.symbols}
+          symbols={getFilteredSymbols()}
           onSelect={handleSymbolSelect}
           currentSymbolId={currentSymbol?.id}
+          onSearch={handleSearch}
         />
       </div>
     </div>

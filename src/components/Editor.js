@@ -82,7 +82,8 @@ const Editor = ({ symbol, onSave }) => {
         
         <div className="form-group">
           <label>描述</label>
-          <textarea
+          <input
+            type="text"
             name="description"
             value={formData.description}
             onChange={handleChange}

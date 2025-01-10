@@ -1,10 +1,12 @@
 import React from 'react';
+import SearchBar from './SearchBar';
 
-const SymbolList = ({ symbols, onSelect, currentSymbolId }) => {
+const SymbolList = ({ symbols, onSelect, currentSymbolId, onSearch }) => {
   return (
     <div className="symbol-list-section">
       <div className="symbol-list-header">
         <h2>符号列表</h2>
+        <SearchBar onSearch={onSearch} />
       </div>
       <div className="symbol-list-content">
         {symbols.map(symbol => (
