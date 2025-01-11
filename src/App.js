@@ -38,7 +38,14 @@ const App = () => {
       // 如果缓存存在且未过期
       if (cachedData && cachedTimestamp && 
           (currentTime - parseInt(cachedTimestamp)) < CACHE_DURATION) {
-        setData(JSON.parse(cachedData));
+        const parsedData = JSON.parse(cachedData);
+        // 为每个符号添加读音属性和名称属性
+        parsedData.symbols = parsedData.symbols.map(symbol => ({
+          ...symbol,
+          pronunciation: symbol.pronunciation || '',
+          name: symbol.name || symbol.description  // 如果没有 name，使用 description
+        }));
+        setData(parsedData);
         setIsLoading(false);
         return;
       }
@@ -50,6 +57,12 @@ const App = () => {
       }
 
       const newData = await response.json();
+      // 为每个符号添加读音属性和名称属性
+      newData.symbols = newData.symbols.map(symbol => ({
+        ...symbol,
+        pronunciation: '',
+        name: symbol.description  // 新数据直接用 description 作为 name
+      }));
       
       // 更新数据和缓存
       setData(newData);
@@ -61,7 +74,14 @@ const App = () => {
       // 如果获取失败但有缓存，使用缓存的数据
       const cachedData = localStorage.getItem(CACHE_KEY);
       if (cachedData) {
-        setData(JSON.parse(cachedData));
+        const parsedData = JSON.parse(cachedData);
+        // 为缓存的数据也添加读音属性和名称属性
+        parsedData.symbols = parsedData.symbols.map(symbol => ({
+          ...symbol,
+          pronunciation: symbol.pronunciation || '',
+          name: symbol.name || symbol.description
+        }));
+        setData(parsedData);
       }
     } finally {
       setIsLoading(false);
@@ -102,6 +122,12 @@ const App = () => {
             if (!jsonData.version) {
               jsonData.version = "1.0.0";
             }
+            // 为上传的数据添加必要的属性
+            jsonData.symbols = jsonData.symbols.map(symbol => ({
+              ...symbol,
+              pronunciation: symbol.pronunciation || '',
+              name: symbol.name || symbol.description
+            }));
             setData(jsonData);
           } else {
             throw new Error('数据格式不正确');
@@ -239,12 +265,32 @@ const App = () => {
   };
 
   const handleExportJson = () => {
-    const content = stringify(data, {
+    // 创建一个带有属性排序的数据副本
+    const sortedData = {
+      version: data.version,
+      symbols: data.symbols.map(symbol => ({
+        id: symbol.id,
+        symbol: symbol.symbol,
+        name: symbol.name,
+        description: symbol.description,
+        pronunciation: symbol.pronunciation,
+        category: symbol.category,
+        searchTerms: symbol.searchTerms,
+        notes: symbol.notes
+      }))
+    };
+
+    const content = stringify(sortedData, {
       indent: 2,
       maxLength: 160,
       arrayMargins: false
     });
 
+    // 更新缓存
+    localStorage.setItem(CACHE_KEY, content);
+    localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().getTime().toString());
+
+    // 导出文件
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

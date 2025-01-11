@@ -23,7 +23,7 @@ const SymbolList = ({ symbols, onSelect, currentSymbolId, onSearch }) => {
                   : symbol.category}
               </span>
             </div>
-            <div className="symbol-desc">{symbol.description}</div>
+            <div className="symbol-desc">{symbol.name}</div>
           </div>
         ))}
       </div>

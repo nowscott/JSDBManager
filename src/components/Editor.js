@@ -4,9 +4,11 @@ const Editor = ({ symbol, onSave }) => {
   const [formData, setFormData] = useState({
     symbol: '',
     category: [],
+    name: '',
     description: '',
     notes: '',
-    searchTerms: []
+    searchTerms: [],
+    pronunciation: ''
   });
 
   useEffect(() => {
@@ -16,9 +18,11 @@ const Editor = ({ symbol, onSave }) => {
       setFormData({
         symbol: '',
         category: [],
+        name: '',
         description: '',
         notes: '',
-        searchTerms: []
+        searchTerms: [],
+        pronunciation: ''
       });
     }
   }, [symbol]);
@@ -37,9 +41,11 @@ const Editor = ({ symbol, onSave }) => {
       setFormData({
         symbol: '',
         category: [],
+        name: '',
         description: '',
         notes: '',
-        searchTerms: []
+        searchTerms: [],
+        pronunciation: ''
       });
     }
   };
@@ -81,13 +87,23 @@ const Editor = ({ symbol, onSave }) => {
         </div>
         
         <div className="form-group">
-          <label>描述</label>
+          <label>名称</label>
           <input
             type="text"
-            name="description"
-            value={formData.description}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>读音</label>
+          <input
+            type="text"
+            name="pronunciation"
+            value={formData.pronunciation}
+            onChange={handleChange}
           />
         </div>
         
