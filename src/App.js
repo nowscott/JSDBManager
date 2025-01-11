@@ -57,11 +57,11 @@ const App = () => {
       }
 
       const newData = await response.json();
-      // 为每个符号添加读音属性和名称属性
-      newData.symbols = newData.symbols.map(symbol => ({
+      // 为每个符号添加读音属性，并删除描述属性
+      newData.symbols = newData.symbols.map(({ description, ...symbol }) => ({
         ...symbol,
         pronunciation: '',
-        name: symbol.description  // 新数据直接用 description 作为 name
+        name: symbol.name || description  // 如果没有 name，使用 description 的值
       }));
       
       // 更新数据和缓存
@@ -122,11 +122,11 @@ const App = () => {
             if (!jsonData.version) {
               jsonData.version = "1.0.0";
             }
-            // 为上传的数据添加必要的属性
-            jsonData.symbols = jsonData.symbols.map(symbol => ({
+            // 为上传的数据添加必要的属性，删除描述属性
+            jsonData.symbols = jsonData.symbols.map(({ description, ...symbol }) => ({
               ...symbol,
               pronunciation: symbol.pronunciation || '',
-              name: symbol.name || symbol.description
+              name: symbol.name || description  // 如果没有 name，使用 description 的值
             }));
             setData(jsonData);
           } else {
@@ -265,14 +265,13 @@ const App = () => {
   };
 
   const handleExportJson = () => {
-    // 创建一个带有属性排序的数据副本
+    // 创建一个带有属性排序的数据副本，不包含 description
     const sortedData = {
       version: data.version,
-      symbols: data.symbols.map(symbol => ({
+      symbols: data.symbols.map(({ description, ...symbol }) => ({
         id: symbol.id,
         symbol: symbol.symbol,
         name: symbol.name,
-        description: symbol.description,
         pronunciation: symbol.pronunciation,
         category: symbol.category,
         searchTerms: symbol.searchTerms,

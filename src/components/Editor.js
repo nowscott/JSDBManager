@@ -5,7 +5,6 @@ const Editor = ({ symbol, onSave }) => {
     symbol: '',
     category: [],
     name: '',
-    description: '',
     notes: '',
     searchTerms: [],
     pronunciation: ''
@@ -13,13 +12,13 @@ const Editor = ({ symbol, onSave }) => {
 
   useEffect(() => {
     if (symbol) {
-      setFormData(symbol);
+      const { description, ...rest } = symbol;
+      setFormData(rest);
     } else {
       setFormData({
         symbol: '',
         category: [],
         name: '',
-        description: '',
         notes: '',
         searchTerms: [],
         pronunciation: ''
@@ -29,10 +28,12 @@ const Editor = ({ symbol, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     const formattedData = {
       ...formData,
-      category: formData.category.filter(cat => cat),
-      searchTerms: formData.searchTerms.filter(term => term)
+      name: formData.name.replace(/\s+/g, ''),  // 只对名称移除所有空格
+      category: formData.category.filter(cat => cat),  // 保持原有的空值过滤
+      searchTerms: formData.searchTerms.filter(term => term)  // 保持原有的空值过滤
     };
     
     onSave(formattedData);
@@ -42,7 +43,6 @@ const Editor = ({ symbol, onSave }) => {
         symbol: '',
         category: [],
         name: '',
-        description: '',
         notes: '',
         searchTerms: [],
         pronunciation: ''
@@ -54,9 +54,11 @@ const Editor = ({ symbol, onSave }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'searchTerms' ? value.split(',').map(term => term.trim()) :
-              name === 'category' ? value.split(',').map(cat => cat.trim()) :
-              value
+      [name]: name === 'searchTerms' || name === 'category' 
+        ? value.split(/[,，]/).map(item => item.trim()).filter(item => item)
+        : name === 'name'
+          ? value.replace(/\s+/g, '')  // 移除名称中的所有空格（包括中间的空格）
+          : value
     }));
   };
 
