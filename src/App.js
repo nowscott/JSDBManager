@@ -265,13 +265,13 @@ const App = () => {
   };
 
   const handleExportJson = () => {
-    // 创建一个带有属性排序的数据副本，不包含 description
+    // 创建一个带有属性排序的数据副本
     const sortedData = {
       version: data.version,
       symbols: data.symbols.map(({ description, ...symbol }) => ({
         id: symbol.id,
         symbol: symbol.symbol,
-        name: symbol.name,
+        name: symbol.name,  // 确保包含 name 字段
         pronunciation: symbol.pronunciation,
         category: symbol.category,
         searchTerms: symbol.searchTerms,
