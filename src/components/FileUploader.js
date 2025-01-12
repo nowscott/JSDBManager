@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileUploader = ({ onUpload, onAddPinyin, onRegenerateIds, onSort, onExportJson, data }) => {
+const FileUploader = ({ onUpload, onAddPinyin, onRegenerateIds, onSort, onExportJson, onOpenRangeManager, data }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -29,6 +29,12 @@ const FileUploader = ({ onUpload, onAddPinyin, onRegenerateIds, onSort, onExport
             disabled={!data?.symbols?.length}
           >
             导出 JSON
+          </button>
+          <button 
+            onClick={onOpenRangeManager}
+            className="operation-button range-button"
+          >
+            管理不支持区间
           </button>
         </div>
       </div>

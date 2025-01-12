@@ -195,21 +195,16 @@
 }
 
 .upload-button {
-  background-color: #8e44ad;
-  color: white;
+  background-color: #2196F3;
 }
 
 .upload-button:hover {
-  background-color: #732d91;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(142, 68, 173, 0.2);
+  background-color: #1976D2;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
 }
 
 .upload-button:disabled {
-  background-color: #d5b8e0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  background-color: #90CAF9;
 }
 
 .download-button {
@@ -482,12 +477,12 @@ label.operation-button {
 
 /* 拼音按钮 - 绿色主题 */
 .pinyin-button {
-  background-color: #4CAF50;
+  background-color: #E91E63;
 }
 
 .pinyin-button:hover {
-  background-color: #45a049;
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+  background-color: #C2185B;
+  box-shadow: 0 4px 8px rgba(233, 30, 99, 0.2);
 }
 
 .pinyin-button:disabled {
@@ -656,4 +651,221 @@ label.operation-button {
   font-weight: 500;
   min-width: 25px;
   text-align: center;
+} 
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.range-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.range-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.range-text-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.add-range-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #2196F3;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.add-range-button:hover {
+  background-color: #1976D2;
+  transform: translateY(-1px);
+}
+
+.add-range-button:active {
+  transform: translateY(0);
+}
+
+/* 修改输入框焦点样式 */
+.range-select:focus,
+.range-text-input:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+/* 确保输入框内容大写 */
+.range-text-input {
+  text-transform: uppercase;
+}
+
+.ranges-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.system-ranges {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+.range-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.range-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.delete-range {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #f44336;
+  color: white;
+  cursor: pointer;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background: #4CAF50;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background: #f5f5f5;
+} 
+
+/* 数据操作按钮 */
+.upload-button {
+  background-color: #2196F3;  /* 蓝色 */
+}
+
+.upload-button:hover {
+  background-color: #1976D2;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.json-button {
+  background-color: #00BCD4;  /* 青色 */
+}
+
+.json-button:hover {
+  background-color: #0097A7;
+  box-shadow: 0 4px 8px rgba(0, 188, 212, 0.2);
+}
+
+.range-button {
+  background-color: #673AB7;  /* 深紫色 */
+}
+
+.range-button:hover {
+  background-color: #512DA8;
+  box-shadow: 0 4px 8px rgba(103, 58, 183, 0.2);
+}
+
+/* 拼音按钮 */
+.pinyin-button {
+  background-color: #E91E63;  /* 粉色 */
+}
+
+.pinyin-button:hover {
+  background-color: #C2185B;
+  box-shadow: 0 4px 8px rgba(233, 30, 99, 0.2);
+}
+
+/* ID 生成按钮 */
+.regenerate-button {
+  background-color: #FF9800;  /* 橙色 */
+}
+
+.regenerate-button:hover {
+  background-color: #F57C00;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.2);
+}
+
+/* 排序按钮 */
+.sort-button {
+  background-color: #4CAF50;  /* 绿色 */
+}
+
+.sort-button:hover {
+  background-color: #388E3C;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+/* 最后一个排序按钮（Unicode排序）特殊颜色 */
+.sort-button:last-child {
+  background-color: #607D8B;  /* 蓝灰色 */
+}
+
+.sort-button:last-child:hover {
+  background-color: #455A64;
+  box-shadow: 0 4px 8px rgba(96, 125, 139, 0.2);
+}
+
+/* 禁用状态统一样式 */
+.operation-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 } 

@@ -7,6 +7,7 @@ import './styles.css';
 import { v4 as uuidv4 } from 'uuid';
 import stringify from 'json-stringify-pretty-compact';
 import VersionControl from './components/VersionControl';
+import SystemRangeManager from './components/SystemRangeManager';
 
 const CACHE_KEY = 'symbolData';
 const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
@@ -18,11 +19,18 @@ const DATA_URL = CORS_PROXY + encodeURIComponent(ORIGINAL_URL);
 const App = () => {
   const [data, setData] = useState({ 
     version: "1.0.0",
+    systemRanges: {
+      ios: [],
+      android: [],
+      win: [],
+      mac: []
+    },
     symbols: [] 
   });
   const [currentSymbol, setCurrentSymbol] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isRangeManagerOpen, setIsRangeManagerOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -119,16 +127,27 @@ const App = () => {
         try {
           const jsonData = JSON.parse(e.target.result);
           if (jsonData && jsonData.symbols) {
-            if (!jsonData.version) {
-              jsonData.version = "1.0.0";
-            }
-            // 为上传的数据添加必要的属性，删除描述属性
-            jsonData.symbols = jsonData.symbols.map(({ description, ...symbol }) => ({
-              ...symbol,
-              pronunciation: symbol.pronunciation || '',
-              name: symbol.name || description  // 如果没有 name，使用 description 的值
-            }));
-            setData(jsonData);
+            // 添加默认值
+            const newData = {
+              version: jsonData.version || "1.0.0",
+              // 如果没有 systemRanges，添加默认空结构
+              systemRanges: jsonData.systemRanges || {
+                ios: [],
+                android: [],
+                win: [],
+                mac: []
+              },
+              // 处理符号数据
+              symbols: jsonData.symbols.map(({ description, ...symbol }) => ({
+                ...symbol,
+                pronunciation: symbol.pronunciation || '',
+                name: symbol.name || description
+              }))
+            };
+            
+            setData(newData);
+            // 更新缓存
+            localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
           } else {
             throw new Error('数据格式不正确');
           }
@@ -298,23 +317,21 @@ const App = () => {
       const existingSymbol = symbolMap.get(symbol.symbol);
       
       if (!existingSymbol) {
-        // 如果不存在，直接添加
         symbolMap.set(symbol.symbol, symbol);
       } else {
-        // 如果存在，比较内容的丰富程度
         const existingScore = getSymbolContentScore(existingSymbol);
         const newScore = getSymbolContentScore(symbol);
         
-        // 保留得分更高的记录
         if (newScore > existingScore) {
           symbolMap.set(symbol.symbol, symbol);
         }
       }
     });
 
-    // 创建一个带有属性排序的数据副本
+    // 创建一个按指定顺序排列字段的数据副本
     const sortedData = {
       version: data.version,
+      systemRanges: data.systemRanges,  // 放在 version 后面
       symbols: Array.from(symbolMap.values()).map(({ description, ...symbol }) => ({
         id: symbol.id,
         symbol: symbol.symbol,
@@ -401,7 +418,8 @@ const App = () => {
         symbol.symbol,
         symbol.name,
         ...(Array.isArray(symbol.category) ? symbol.category : [symbol.category]),
-        ...(symbol.searchTerms || [])
+        ...(symbol.searchTerms || []),
+        symbol.notes || ''  // 添加备注到搜索范围
       ];
       
       // Unicode 码点也作为搜索字段
@@ -412,13 +430,21 @@ const App = () => {
       const pinyinFields = searchFields
         .filter(field => field && /[\u4e00-\u9fa5]/.test(field))
         .map(field => {
-          const pinyinFull = pinyin(field, { toneType: 'none', type: 'string' });
+          // 全拼
+          const pinyinFull = pinyin(field, { 
+            toneType: 'none', 
+            type: 'string',
+            separator: ' '  // 添加空格分隔
+          });
+          // 首字母
           const pinyinFirst = pinyin(field, { 
             pattern: 'first', 
             toneType: 'none', 
-            type: 'string' 
+            type: 'string'
           });
-          return [pinyinFull, pinyinFirst];
+          // 不带空格的全拼
+          const pinyinFullNoSpace = pinyinFull.replace(/\s+/g, '');
+          return [pinyinFull, pinyinFirst, pinyinFullNoSpace];
         })
         .flat();
       
@@ -429,7 +455,11 @@ const App = () => {
       ];
       
       // 检查是否有任何字段包含搜索词
-      return allSearchableContent.some(content => content.includes(searchTermLower));
+      return allSearchableContent.some(content => 
+        content.includes(searchTermLower) || 
+        // 如果搜索词是拼音，尝试移除空格后匹配
+        content.includes(searchTermLower.replace(/\s+/g, ''))
+      );
     });
   };
 
@@ -447,6 +477,19 @@ const App = () => {
     if (currentSymbol && currentSymbol.id === symbolId) {
       setCurrentSymbol(null);
     }
+  };
+
+  const handleSystemRangesSave = (newRanges) => {
+    setData(prev => ({
+      ...prev,
+      systemRanges: newRanges
+    }));
+    
+    // 更新缓存
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      ...data,
+      systemRanges: newRanges
+    }));
   };
 
   if (isLoading) {
@@ -469,6 +512,7 @@ const App = () => {
         onRegenerateIds={handleRegenerateIds}
         onSort={handleSort}
         onExportJson={handleExportJson}
+        onOpenRangeManager={() => setIsRangeManagerOpen(true)}
         data={data}
       />
       
@@ -485,6 +529,13 @@ const App = () => {
           onDelete={handleDeleteSymbol}
         />
       </div>
+
+      <SystemRangeManager 
+        isOpen={isRangeManagerOpen}
+        onClose={() => setIsRangeManagerOpen(false)}
+        systemRanges={data.systemRanges}
+        onSave={handleSystemRangesSave}
+      />
     </div>
   );
 };
