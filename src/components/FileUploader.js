@@ -72,6 +72,13 @@ const FileUploader = ({ onUpload, onAddPinyin, onRegenerateIds, onSort, onExport
           >
             按类别排序
           </button>
+          <button 
+            onClick={() => onSort('unicode')} 
+            className="operation-button sort-button"
+            disabled={!data?.symbols?.length}
+          >
+            按 Unicode 排序
+          </button>
         </div>
       </div>
     </div>

@@ -338,13 +338,45 @@ label.operation-button {
 }
 
 .symbol-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 12px 15px;
   border: 1px solid #e0e0e0;
   margin-bottom: 10px;
   border-radius: 6px;
+  background: #ffffff;
+}
+
+.symbol-content {
+  flex: 1;
+  cursor: pointer;
+}
+
+.delete-button {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f44336;
+  color: white;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #ffffff;
+  margin-left: 10px;
+  opacity: 0;  /* 默认隐藏 */
+}
+
+.symbol-list-item:hover .delete-button {
+  opacity: 1;  /* 鼠标悬停时显示 */
+}
+
+.delete-button:hover {
+  background-color: #d32f2f;
+  transform: translateY(-1px);
+}
+
+.delete-button:active {
+  transform: translateY(0);
 }
 
 .symbol-list-item:last-child {
@@ -578,4 +610,50 @@ label.operation-button {
   height: 100vh;
   font-size: 1.2em;
   color: #666;
+} 
+
+.sort-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Unicode 排序按钮特殊样式 */
+.sort-button:last-child {
+  background-color: #607D8B;  /* 使用不同的颜色区分 */
+}
+
+.sort-button:last-child:hover {
+  background-color: #455A64;
+  box-shadow: 0 4px 8px rgba(96, 125, 139, 0.2);
+}
+
+.sort-button:last-child:disabled {
+  background-color: #B0BEC5;
+} 
+
+.symbol-unicode {
+  font-family: monospace;
+  font-size: 0.85em;
+  color: #666;
+  padding: 2px 6px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.symbol-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.symbol-char {
+  font-size: 1.2em;
+  font-weight: 500;
+  min-width: 25px;
+  text-align: center;
 } 

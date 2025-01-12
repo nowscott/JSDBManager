@@ -254,24 +254,71 @@ const App = () => {
   const handleSort = (sortType = 'notes') => {
     if (!data.symbols) return;
     
-    const sortedSymbols = sortType === 'notes' 
-      ? sortSymbolsByNotesLength([...data.symbols])
-      : sortSymbolsByCategory([...data.symbols]);
-      
+    let sortedSymbols;
+    switch(sortType) {
+      case 'notes':
+        sortedSymbols = sortSymbolsByNotesLength([...data.symbols]);
+        break;
+      case 'category':
+        sortedSymbols = sortSymbolsByCategory([...data.symbols]);
+        break;
+      case 'unicode':
+        sortedSymbols = sortSymbolsByUnicode([...data.symbols]);
+        break;
+      default:
+        sortedSymbols = [...data.symbols];
+    }
+    
     setData(prev => ({
       ...prev,
       symbols: sortedSymbols
     }));
   };
 
+  const sortSymbolsByUnicode = (symbols) => {
+    return symbols.sort((a, b) => {
+      // 获取符号的 Unicode 码点
+      const aCode = a.symbol.codePointAt(0) || 0;
+      const bCode = b.symbol.codePointAt(0) || 0;
+      
+      // 如果码点相同，按名称排序
+      if (aCode === bCode) {
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      
+      return aCode - bCode;
+    });
+  };
+
   const handleExportJson = () => {
+    // 先对符号进行去重，保留内容更丰富的记录
+    const symbolMap = new Map();
+    
+    data.symbols.forEach(symbol => {
+      const existingSymbol = symbolMap.get(symbol.symbol);
+      
+      if (!existingSymbol) {
+        // 如果不存在，直接添加
+        symbolMap.set(symbol.symbol, symbol);
+      } else {
+        // 如果存在，比较内容的丰富程度
+        const existingScore = getSymbolContentScore(existingSymbol);
+        const newScore = getSymbolContentScore(symbol);
+        
+        // 保留得分更高的记录
+        if (newScore > existingScore) {
+          symbolMap.set(symbol.symbol, symbol);
+        }
+      }
+    });
+
     // 创建一个带有属性排序的数据副本
     const sortedData = {
       version: data.version,
-      symbols: data.symbols.map(({ description, ...symbol }) => ({
+      symbols: Array.from(symbolMap.values()).map(({ description, ...symbol }) => ({
         id: symbol.id,
         symbol: symbol.symbol,
-        name: symbol.name,  // 确保包含 name 字段
+        name: symbol.name,
         pronunciation: symbol.pronunciation,
         category: symbol.category,
         searchTerms: symbol.searchTerms,
@@ -301,6 +348,34 @@ const App = () => {
     URL.revokeObjectURL(url);
   };
 
+  // 添加一个函数来计算符号内容的丰富程度
+  const getSymbolContentScore = (symbol) => {
+    let score = 0;
+    
+    // 名称长度
+    score += (symbol.name || '').length * 2;  // 名称权重更高
+    
+    // 读音
+    score += (symbol.pronunciation || '').length;
+    
+    // 分类数量和长度
+    if (Array.isArray(symbol.category)) {
+      score += symbol.category.join('').length;
+      score += symbol.category.length;  // 额外加分：每个分类加1分
+    }
+    
+    // 搜索关键词数量和长度
+    if (Array.isArray(symbol.searchTerms)) {
+      score += symbol.searchTerms.join('').length;
+      score += symbol.searchTerms.length;  // 额外加分：每个关键词加1分
+    }
+    
+    // 备注长度
+    score += (symbol.notes || '').length;
+    
+    return score;
+  };
+
   const handleSearch = (term) => {
     setSearchTerm(term.toLowerCase());
   };
@@ -310,20 +385,33 @@ const App = () => {
     
     const searchTermLower = searchTerm.toLowerCase();
     
+    // 检查是否是 Unicode 搜索
+    const unicodeMatch = searchTermLower.match(/u\+?([0-9a-f]{4,})/i);
+    
     return data.symbols.filter(symbol => {
-      // 收集所有可搜索的字段
+      // 如果是 Unicode 搜索
+      if (unicodeMatch) {
+        const searchCode = parseInt(unicodeMatch[1], 16);
+        const symbolCode = symbol.symbol.codePointAt(0);
+        return symbolCode === searchCode;
+      }
+      
+      // 常规搜索字段
       const searchFields = [
         symbol.symbol,
-        symbol.description,
+        symbol.name,
         ...(Array.isArray(symbol.category) ? symbol.category : [symbol.category]),
         ...(symbol.searchTerms || [])
       ];
+      
+      // Unicode 码点也作为搜索字段
+      const unicodeStr = `U+${symbol.symbol.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}`;
+      searchFields.push(unicodeStr);
       
       // 为每个中文字段生成拼音
       const pinyinFields = searchFields
         .filter(field => field && /[\u4e00-\u9fa5]/.test(field))
         .map(field => {
-          // 生成不同形式的拼音以支持更灵活的搜索
           const pinyinFull = pinyin(field, { toneType: 'none', type: 'string' });
           const pinyinFirst = pinyin(field, { 
             pattern: 'first', 
@@ -345,6 +433,22 @@ const App = () => {
     });
   };
 
+  const handleDeleteSymbol = (symbolId) => {
+    const newSymbols = data.symbols.filter(s => s.id !== symbolId);
+    const newData = {
+      ...data,
+      symbols: newSymbols
+    };
+    
+    setData(newData);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+    
+    // 如果删除的是当前选中的符号，清除选中状态
+    if (currentSymbol && currentSymbol.id === symbolId) {
+      setCurrentSymbol(null);
+    }
+  };
+
   if (isLoading) {
     return <div className="loading">加载中...</div>;
   }
@@ -352,7 +456,6 @@ const App = () => {
   return (
     <div className="container">
       <div className="header">
-        <h1>符号数据管理器</h1>
         <VersionControl 
           version={data.version}
           onUpdate={updateVersion}
@@ -379,6 +482,7 @@ const App = () => {
           onSelect={handleSymbolSelect}
           currentSymbolId={currentSymbol?.id}
           onSearch={handleSearch}
+          onDelete={handleDeleteSymbol}
         />
       </div>
     </div>
