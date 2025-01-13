@@ -97,6 +97,14 @@ const App = () => {
     }
   };
 
+  // 添加一个统一的缓存更新函数
+  const updateDataAndCache = (newData) => {
+    setData(newData);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+    localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().getTime().toString());
+  };
+
+  // 修改版本更新函数
   const updateVersion = (type) => {
     const [major, minor, patch] = data.version.split('.').map(Number);
     let newVersion;
@@ -115,10 +123,11 @@ const App = () => {
         return;
     }
     
-    setData(prevData => ({
-      ...prevData,
+    const newData = {
+      ...data,
       version: newVersion
-    }));
+    };
+    updateDataAndCache(newData);
   };
 
   const handleFileUpload = async (file) => {
@@ -186,6 +195,7 @@ const App = () => {
     setCurrentSymbol(symbol);
   };
 
+  // 修改符号保存函数
   const handleSymbolSave = (symbolData) => {
     let newSymbols;
     if (symbolData.id) {
@@ -201,42 +211,39 @@ const App = () => {
       ...data,
       symbols: newSymbols
     };
-    
-    setData(newData);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+    updateDataAndCache(newData);
     setCurrentSymbol(null);
   };
 
+  // 修改拼音添加函数
   const handleAddPinyin = () => {
     const newSymbols = data.symbols.map(symbol => {
       const pinyinTerms = symbol.searchTerms
         .filter(term => /[\u4e00-\u9fa5]/.test(term))
-        .map(term => {
-          return pinyin(term, { 
-            toneType: 'none',
-            type: 'string',
-            separator: ''
-          });
-        });
+        .map(term => pinyin(term, { 
+          toneType: 'none',
+          type: 'string',
+          separator: ''
+        }));
 
       const newSearchTerms = [...new Set([...symbol.searchTerms, ...pinyinTerms])];
-
       return {
         ...symbol,
         searchTerms: newSearchTerms
       };
     });
 
-    setData({ ...data, symbols: newSymbols });
+    updateDataAndCache({ ...data, symbols: newSymbols });
   };
 
+  // 修改 ID 重新生成函数
   const handleRegenerateIds = () => {
     const newSymbols = data.symbols.map(symbol => ({
       ...symbol,
       id: uuidv4()
     }));
     
-    setData({ ...data, symbols: newSymbols });
+    updateDataAndCache({ ...data, symbols: newSymbols });
   };
 
   const sortSymbolsByCategory = (result) => {
@@ -271,6 +278,7 @@ const App = () => {
     });
   };
 
+  // 修改排序函数
   const handleSort = (sortType = 'notes') => {
     if (!data.symbols) return;
     
@@ -289,10 +297,10 @@ const App = () => {
         sortedSymbols = [...data.symbols];
     }
     
-    setData(prev => ({
-      ...prev,
+    updateDataAndCache({
+      ...data,
       symbols: sortedSymbols
-    }));
+    });
   };
 
   const sortSymbolsByUnicode = (symbols) => {
@@ -469,6 +477,7 @@ const App = () => {
     });
   };
 
+  // 修改删除符号函数
   const handleDeleteSymbol = (symbolId) => {
     const newSymbols = data.symbols.filter(s => s.id !== symbolId);
     const newData = {
@@ -476,26 +485,20 @@ const App = () => {
       symbols: newSymbols
     };
     
-    setData(newData);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+    updateDataAndCache(newData);
     
-    // 如果删除的是当前选中的符号，清除选中状态
     if (currentSymbol && currentSymbol.id === symbolId) {
       setCurrentSymbol(null);
     }
   };
 
+  // 修改系统区间保存函数
   const handleSystemRangesSave = (newRanges) => {
-    setData(prev => ({
-      ...prev,
-      systemRanges: newRanges
-    }));
-    
-    // 更新缓存
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
+    const newData = {
       ...data,
       systemRanges: newRanges
-    }));
+    };
+    updateDataAndCache(newData);
   };
 
   if (isLoading) {
