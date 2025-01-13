@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import stringify from 'json-stringify-pretty-compact';
 import VersionControl from './components/VersionControl';
 import SystemRangeManager from './components/SystemRangeManager';
+import NavBar from './components/NavBar';
 
 const CACHE_KEY = 'symbolData';
 const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
@@ -402,14 +403,24 @@ const App = () => {
     
     const searchTermLower = searchTerm.toLowerCase();
     
-    // 检查是否是 Unicode 搜索
+    // 检查是否是 Unicode 区间搜索
+    const rangeMatch = searchTermLower.match(/([0-9a-f]{4,5})-([0-9a-f]{4,5})/i);
+    // 检查是否是单个 Unicode 搜索
     const unicodeMatch = searchTermLower.match(/u\+?([0-9a-f]{4,})/i);
     
     return data.symbols.filter(symbol => {
-      // 如果是 Unicode 搜索
+      const symbolCode = symbol.symbol.codePointAt(0);
+      
+      // 如果是区间搜索
+      if (rangeMatch) {
+        const startCode = parseInt(rangeMatch[1], 16);
+        const endCode = parseInt(rangeMatch[2], 16);
+        return symbolCode >= startCode && symbolCode <= endCode;
+      }
+      
+      // 如果是单个 Unicode 搜索
       if (unicodeMatch) {
         const searchCode = parseInt(unicodeMatch[1], 16);
-        const symbolCode = symbol.symbol.codePointAt(0);
         return symbolCode === searchCode;
       }
       
@@ -419,30 +430,27 @@ const App = () => {
         symbol.name,
         ...(Array.isArray(symbol.category) ? symbol.category : [symbol.category]),
         ...(symbol.searchTerms || []),
-        symbol.notes || ''  // 添加备注到搜索范围
+        symbol.pronunciation || ''
       ];
       
       // Unicode 码点也作为搜索字段
-      const unicodeStr = `U+${symbol.symbol.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}`;
+      const unicodeStr = `U+${symbolCode.toString(16).toUpperCase().padStart(4, '0')}`;
       searchFields.push(unicodeStr);
       
       // 为每个中文字段生成拼音
       const pinyinFields = searchFields
         .filter(field => field && /[\u4e00-\u9fa5]/.test(field))
         .map(field => {
-          // 全拼
           const pinyinFull = pinyin(field, { 
             toneType: 'none', 
             type: 'string',
-            separator: ' '  // 添加空格分隔
+            separator: ' '
           });
-          // 首字母
           const pinyinFirst = pinyin(field, { 
             pattern: 'first', 
             toneType: 'none', 
             type: 'string'
           });
-          // 不带空格的全拼
           const pinyinFullNoSpace = pinyinFull.replace(/\s+/g, '');
           return [pinyinFull, pinyinFirst, pinyinFullNoSpace];
         })
@@ -454,10 +462,8 @@ const App = () => {
         ...pinyinFields
       ];
       
-      // 检查是否有任何字段包含搜索词
       return allSearchableContent.some(content => 
         content.includes(searchTermLower) || 
-        // 如果搜索词是拼音，尝试移除空格后匹配
         content.includes(searchTermLower.replace(/\s+/g, ''))
       );
     });
@@ -498,22 +504,16 @@ const App = () => {
 
   return (
     <div className="container">
-      <div className="header">
-        <VersionControl 
-          version={data.version}
-          onUpdate={updateVersion}
-        />
-      </div>
-      
-      <FileUploader 
+      <NavBar 
         onUpload={handleFileUpload}
-        onDownload={handleDownload}
+        onExportJson={handleExportJson}
+        onOpenRangeManager={() => setIsRangeManagerOpen(true)}
         onAddPinyin={handleAddPinyin}
         onRegenerateIds={handleRegenerateIds}
         onSort={handleSort}
-        onExportJson={handleExportJson}
-        onOpenRangeManager={() => setIsRangeManagerOpen(true)}
         data={data}
+        version={data.version}
+        onUpdateVersion={updateVersion}
       />
       
       <div className="content-wrapper">
