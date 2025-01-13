@@ -74,6 +74,7 @@ const Editor = ({ symbol, onSave }) => {
             value={formData.symbol}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
         </div>
         
@@ -85,6 +86,7 @@ const Editor = ({ symbol, onSave }) => {
             value={formData.name}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
         </div>
 
@@ -106,6 +108,7 @@ const Editor = ({ symbol, onSave }) => {
             name="pronunciation"
             value={formData.pronunciation}
             onChange={handleChange}
+            autoComplete="off"
           />
         </div>
         
@@ -115,6 +118,7 @@ const Editor = ({ symbol, onSave }) => {
             name="notes"
             value={formData.notes}
             onChange={handleChange}
+            autoComplete="off"
           />
         </div>
         
@@ -125,6 +129,7 @@ const Editor = ({ symbol, onSave }) => {
             name="searchTerms"
             value={formData.searchTerms.join(', ')}
             onChange={handleChange}
+            autoComplete="off"
           />
         </div>
         
