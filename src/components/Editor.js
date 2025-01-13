@@ -78,22 +78,22 @@ const Editor = ({ symbol, onSave }) => {
         </div>
         
         <div className="form-group">
-          <label>分类（用逗号分隔多个分类）</label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category.join(', ')}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
           <label>名称</label>
           <input
             type="text"
             name="name"
             value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>分类（用逗号分隔多个分类）</label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category.join(', ')}
             onChange={handleChange}
             required
           />
