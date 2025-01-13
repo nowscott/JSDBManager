@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const NavBar = ({ 
   onUpload, 
@@ -12,6 +12,27 @@ const NavBar = ({
   onUpdateVersion
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // 如果点击的不是菜单内部和菜单按钮，则关闭菜单
+      if (menuRef.current && 
+          !menuRef.current.contains(event.target) && 
+          !buttonRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    // 添加全局点击事件监听
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // 清理函数
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -25,6 +46,7 @@ const NavBar = ({
     <nav className="nav-bar">
       <div className="nav-header">
         <button 
+          ref={buttonRef}
           className="menu-toggle"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
@@ -42,7 +64,7 @@ const NavBar = ({
         </span>
       </div>
 
-      <div className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+      <div ref={menuRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
         <div className="menu-section">
           <h3>数据操作</h3>
           <div className="menu-group">
