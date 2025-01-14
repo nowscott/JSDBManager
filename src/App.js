@@ -37,6 +37,26 @@ const App = () => {
     loadData();
   }, []);
 
+  // 添加暗色模式检测
+  useEffect(() => {
+    // 检测系统是否支持暗色模式
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // 当系统颜色模式改变时更新样式
+    const handleColorSchemeChange = (e) => {
+      document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    };
+
+    // 初始化检测
+    handleColorSchemeChange(darkModeMediaQuery);
+
+    // 添加监听器
+    darkModeMediaQuery.addListener(handleColorSchemeChange);
+
+    // 清理监听器
+    return () => darkModeMediaQuery.removeListener(handleColorSchemeChange);
+  }, []);
+
   const loadData = async () => {
     try {
       // 检查缓存

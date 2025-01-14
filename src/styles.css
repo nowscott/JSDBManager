@@ -1,9 +1,52 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --border-color: #e0e0e0;
+  --text-primary: #2c3e50;
+  --text-secondary: #666666;
+  --input-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --hover-bg: #f5f5f5;
+  --button-bg: #4CAF50;
+  --button-hover: #45a049;
+  --button-disabled: #a5d6a7;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --unicode-bg: #f5f5f5;
+  --unicode-border: #e0e0e0;
+  --unicode-text: #666;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2a2a2a;
+  --border-color: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --input-bg: #333333;
+  --modal-bg: #2a2a2a;
+  --hover-bg: #333333;
+  --button-bg: #4CAF50;
+  --button-hover: #45a049;
+  --button-disabled: #2d5930;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --unicode-bg: #333333;
+  --unicode-border: #404040;
+  --unicode-text: #b0b0b0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-secondary);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   padding-top: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell;
+  background: var(--bg-secondary);
 }
 
 .header {
@@ -14,16 +57,16 @@
 .header h1 {
   font-size: 2.5em;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .file-uploader {
   text-align: center;
   padding: 30px;
-  border: 2px dashed #e0e0e0;
+  border: 2px dashed var(--border-color);
   border-radius: 12px;
   margin-bottom: 40px;
-  background: #fafafa;
+  background: var(--bg-secondary);
 }
 
 .content-wrapper {
@@ -35,27 +78,27 @@
 
 .editor-section,
 .symbol-list-section {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
 }
 
 .editor-section {
   padding: 0;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 .editor-section h2,
 .symbol-list-section h2 {
   margin: 0;
   padding: 10px 15px;
-  border-bottom: 1px solid #e0e0e0;
-  color: #2c3e50;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .symbol-form {
@@ -73,7 +116,7 @@
 
 .form-group label {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 13px;
 }
 
@@ -83,9 +126,11 @@
   border-radius: 6px;
   font-size: 13px;
   transition: border-color 0.2s;
-  background: #f8f9fa;
+  background: var(--input-bg);
   width: 100%;
   box-sizing: border-box;
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .form-group textarea {
@@ -94,24 +139,26 @@
   border-radius: 6px;
   font-size: 13px;
   transition: border-color 0.2s;
-  background: #f8f9fa;
+  background: var(--input-bg);
   min-height: 80px;
   resize: vertical;
   width: 100%;
   box-sizing: border-box;
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #4CAF50;
-  background: #ffffff;
+  border-color: var(--button-bg);
+  background: var(--input-bg);
 }
 
 .form-submit {
   padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
 .submit-button {
@@ -128,7 +175,7 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
   background-color: #4CAF50;
   width: 100%;
   box-sizing: border-box;
@@ -149,13 +196,13 @@
 
 .symbols-list {
   margin-top: 30px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-color);
   padding-top: 30px;
 }
 
 .symbols-list h3 {
   margin-bottom: 20px;
-  color: #2c3e50;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -164,13 +211,15 @@
   border: 1px solid #e0e0e0;
   margin-bottom: 8px;
   border-radius: 6px;
-  background: #f8f9fa;
+  background: var(--bg-primary);
   transition: transform 0.2s;
 }
 
 .symbol-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .upload-buttons {
@@ -193,7 +242,7 @@
   border-radius: 8px;
   color: white;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
   text-align: center;
   white-space: nowrap;
 }
@@ -223,7 +272,7 @@
 
 .upload-buttons .button:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px var(--shadow-color);
 }
 
 .upload-buttons .button:disabled {
@@ -234,15 +283,16 @@
 }
 
 .preview-section pre {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   padding: 20px;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
   line-height: 1.5;
   max-height: 600px;
   overflow: auto;
+  color: var(--text-primary);
 }
 
 /* 文件操作区域 */
@@ -256,9 +306,9 @@
 /* 操作框样式 */
 .operation-box {
   padding: 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -268,8 +318,8 @@
 
 .operation-box h3 {
   margin-bottom: 12px;
-  color: #2c3e50;
-  font-size: 0.9em;
+  color: var(--text-primary);
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -329,15 +379,15 @@ label.operation-button {
   flex-direction: column;
   height: 100vh;  /* 使用视口高度 */
   max-height: 700px;  /* 设置最大高度 */
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--bg-secondary);
 }
 
 .symbol-list-header {
   padding: 10px 15px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
   flex-shrink: 0;  /* 防止头部被压缩 */
 }
 
@@ -347,8 +397,10 @@ label.operation-button {
 }
 
 .symbol-list-content {
-  padding: 10px;
-  overflow-y: auto;  /* 添加垂直滚动条 */
+  padding: 15px;
+  max-height: 800px;
+  overflow-y: auto;
+  background: var(--bg-primary);
   flex-grow: 1;  /* 让内容区域填充剩余空间 */
 }
 
@@ -358,17 +410,17 @@ label.operation-button {
 }
 
 .symbol-list-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--bg-secondary);
   border-radius: 4px;
 }
 
 .symbol-list-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .symbol-list-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--text-secondary);
 }
 
 .symbol-list-item {
@@ -376,10 +428,11 @@ label.operation-button {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   margin-bottom: 8px;
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .symbol-content {
@@ -417,14 +470,10 @@ label.operation-button {
   margin-bottom: 0;
 }
 
-.symbol-list-item:hover {
-  border-color: #4CAF50;
-  background: #f1f8e9;
-}
-
+.symbol-list-item:hover,
 .symbol-list-item.active {
-  border-color: #4CAF50;
-  background: #f1f8e9;
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
 }
 
 .symbol-main {
@@ -442,15 +491,16 @@ label.operation-button {
 }
 
 .symbol-category {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.85em;
   padding: 1px 6px;
-  background: #f0f0f0;
+  background: var(--bg-secondary);
   border-radius: 4px;
+  border: 1px solid var(--border-color);
 }
 
 .symbol-desc {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.85em;
   margin-left: 30px;  /* 与符号对齐 */
 }
@@ -478,14 +528,6 @@ label.operation-button {
 .submit-button:disabled {
   background-color: #a5d6a7;
 }
-
-/* 删除所有重复的按钮样式：
-- .upload-button
-- .json-button
-- .pinyin-button
-- .regenerate-button
-- .sort-button
-因为它们都使用相同的基础样式 */
 
 .api-button {
   background: linear-gradient(to bottom, #009688, #00796B);
@@ -558,6 +600,7 @@ label.operation-button {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  color: var(--text-primary);
 }
 
 .version-label {
@@ -606,8 +649,8 @@ label.operation-button {
 /* 搜索框样式 */
 .symbol-list-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
   flex-shrink: 0;  /* 防止搜索框被压缩 */
 }
 
@@ -619,12 +662,14 @@ label.operation-button {
 .search-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 14px;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: var(--input-bg);
   box-sizing: border-box;  /* 确保宽度包含内边距 */
+  border: 1px solid var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .search-input:focus {
@@ -671,11 +716,11 @@ label.operation-button {
 .symbol-unicode {
   font-family: monospace;
   font-size: 0.85em;
-  color: #666;
+  color: var(--text-secondary);
   padding: 2px 6px;
-  background: #f5f5f5;
+  background: var(--bg-secondary);
   border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
 }
 
 .symbol-main {
@@ -707,7 +752,9 @@ label.operation-button {
 }
 
 .modal-content {
-  background: white;
+  background: var(--modal-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 20px;
   border-radius: 8px;
   width: 80%;
@@ -729,6 +776,9 @@ label.operation-button {
   border: 1px solid #e0e0e0;
   font-size: 14px;
   min-width: 120px;
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .range-text-input {
@@ -738,6 +788,9 @@ label.operation-button {
   border: 1px solid #e0e0e0;
   font-size: 14px;
   font-family: monospace;
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .add-range-button {
@@ -765,8 +818,8 @@ label.operation-button {
 .range-select:focus,
 .range-text-input:focus {
   outline: none;
-  border-color: #2196F3;
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  border-color: var(--button-bg);
+  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 /* 确保输入框内容大写 */
@@ -781,9 +834,10 @@ label.operation-button {
 }
 
 .system-ranges {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
+  background: var(--bg-primary);
 }
 
 .range-list {
@@ -797,8 +851,9 @@ label.operation-button {
   justify-content: space-between;
   align-items: center;
   padding: 8px;
-  background: #f5f5f5;
+  background: var(--bg-secondary);
   border-radius: 4px;
+  color: var(--text-primary);
 }
 
 .delete-range {
@@ -830,7 +885,8 @@ label.operation-button {
 }
 
 .modal-buttons button:last-child {
-  background: #f5f5f5;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 } 
 
 /* 数据操作按钮 */
@@ -912,8 +968,8 @@ label.operation-button {
 /* 导航栏样式 */
 .nav-bar {
   position: relative;
-  background: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
   z-index: 100;
   margin: 0 -20px 20px -20px;
 }
@@ -930,18 +986,18 @@ label.operation-button {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--bg-primary);
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .menu-icon {
   width: 18px;
   height: 2px;
-  background: #333;
+  background: var(--text-primary);
   position: relative;
 }
 
@@ -951,7 +1007,7 @@ label.operation-button {
   position: absolute;
   width: 18px;
   height: 2px;
-  background: #333;
+  background: var(--text-primary);
   left: 0;
 }
 
@@ -968,10 +1024,10 @@ label.operation-button {
   top: 100%;
   left: 0;
   width: 250px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-top: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px var(--shadow-color);
   display: none;
   padding: 8px;
 }
@@ -986,10 +1042,10 @@ label.operation-button {
 
 .menu-section h3 {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .menu-group {
@@ -1003,7 +1059,7 @@ label.operation-button {
   padding: 8px 12px;
   border: none;
   background: none;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 13px;
   border-radius: 4px;
@@ -1011,11 +1067,11 @@ label.operation-button {
 }
 
 .menu-button:hover {
-  background: #f5f5f5;
+  background: var(--bg-secondary);
 }
 
 .menu-button:disabled {
-  color: #999;
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -1044,3 +1100,27 @@ label.operation-button {
 .version-button.major { background: #f44336; }
 .version-button.minor { background: #ff9800; }
 .version-button.patch { background: #4caf50; } 
+
+/* 修改所有 label 的颜色 */
+label, 
+.form-group label,
+.version-label {
+  color: var(--text-primary);
+}
+
+/* 修改 label 的样式 */
+.form-group label {
+  font-weight: 500;
+  color: var(--text-primary);  /* 确保使用变量 */
+  font-size: 13px;
+}
+
+/* 修改版本标签的样式 */
+.version-label {
+  color: var(--text-primary);  /* 确保使用变量 */
+}
+
+/* 修改操作按钮标签的样式 */
+label.operation-button {
+  color: white;  /* 按钮文字保持白色 */
+} 
