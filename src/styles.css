@@ -90,10 +90,16 @@ body {
   background: var(--bg-primary);
 }
 
+.editor-section h2 {
+  padding: 25px 20px;
+}
+.symbol-list-section h2 {
+  padding: 10px 0px;
+}
+
 .editor-section h2,
 .symbol-list-section h2 {
   margin: 0;
-  padding: 10px 15px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   font-size: 14px;

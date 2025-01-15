@@ -16,8 +16,8 @@ const SymbolList = ({ symbols, onSelect, currentSymbolId, onSearch, onDelete }) 
       <div className="symbol-list-content">
         {symbols.map(symbol => (
           <div 
-            key={symbol.id}
-            className={`symbol-list-item ${symbol.id === currentSymbolId ? 'active' : ''}`}
+            key={symbol.symbol}
+            className={`symbol-list-item ${symbol.symbol === currentSymbolId ? 'active' : ''}`}
           >
             <div 
               className="symbol-content"
@@ -39,7 +39,7 @@ const SymbolList = ({ symbols, onSelect, currentSymbolId, onSearch, onDelete }) 
               onClick={(e) => {
                 e.stopPropagation();
                 if (window.confirm('确定要删除这个符号吗？')) {
-                  onDelete(symbol.id);
+                  onDelete(symbol.symbol);
                 }
               }}
             >

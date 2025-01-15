@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import FileUploader from './components/FileUploader';
 import Editor from './components/Editor';
 import SymbolList from './components/SymbolList';
 import { pinyin } from 'pinyin-pro';
 import './styles.css';
-import { v4 as uuidv4 } from 'uuid';
 import stringify from 'json-stringify-pretty-compact';
-import VersionControl from './components/VersionControl';
 import SystemRangeManager from './components/SystemRangeManager';
 import NavBar from './components/NavBar';
 
@@ -487,8 +484,8 @@ const App = () => {
   };
 
   // 修改删除符号函数
-  const handleDeleteSymbol = (symbolId) => {
-    const newSymbols = data.symbols.filter(s => s.id !== symbolId);
+  const handleDeleteSymbol = (symbolChar) => {
+    const newSymbols = data.symbols.filter(s => s.symbol !== symbolChar);
     const newData = {
       ...data,
       symbols: newSymbols
@@ -496,7 +493,7 @@ const App = () => {
     
     updateDataAndCache(newData);
     
-    if (currentSymbol && currentSymbol.id === symbolId) {
+    if (currentSymbol && currentSymbol.symbol === symbolChar) {
       setCurrentSymbol(null);
     }
   };
