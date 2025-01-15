@@ -508,7 +508,7 @@ const App = () => {
   };
 
   const handleExportPinyinMap = () => {
-    // 收集所有汉字
+    // 从名称、搜索关键词和类别中收集汉字
     const chineseChars = new Set();
     data.symbols.forEach(symbol => {
       // 从名称中收集汉字
@@ -527,6 +527,19 @@ const App = () => {
               chineseChars.add(char);
             }
           });
+        });
+      }
+      // 从类别中收集汉字
+      if (symbol.category) {
+        const categories = Array.isArray(symbol.category) ? symbol.category : [symbol.category];
+        categories.forEach(category => {
+          if (category) {
+            [...category].forEach(char => {
+              if (/[\u4e00-\u9fa5]/.test(char)) {
+                chineseChars.add(char);
+              }
+            });
+          }
         });
       }
     });
