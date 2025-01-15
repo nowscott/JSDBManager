@@ -79,14 +79,14 @@ body {
 .editor-section,
 .symbol-list-section {
   background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
 }
 
 .editor-section {
   padding: 0;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 20px;
   background: var(--bg-primary);
 }
 
@@ -98,7 +98,8 @@ body {
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
+  border-radius: 20px 20px 0 0;
 }
 
 .symbol-form {
@@ -380,15 +381,16 @@ label.operation-button {
   height: 100vh;  /* 使用视口高度 */
   max-height: 700px;  /* 设置最大高度 */
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-secondary);
+  border-radius: 20px;
+  background: var(--bg-primary);
 }
 
 .symbol-list-header {
   padding: 10px 15px;
   border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   flex-shrink: 0;  /* 防止头部被压缩 */
+  border-radius: 20px 20px 0 0;
 }
 
 .symbol-list-header h2 {
@@ -402,6 +404,7 @@ label.operation-button {
   overflow-y: auto;
   background: var(--bg-primary);
   flex-grow: 1;  /* 让内容区域填充剩余空间 */
+  border-radius: 0 0 20px 20px;
 }
 
 /* 美化滚动条 */
@@ -650,7 +653,7 @@ label.operation-button {
 .symbol-list-header {
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   flex-shrink: 0;  /* 防止搜索框被压缩 */
 }
 
@@ -1123,4 +1126,26 @@ label,
 /* 修改操作按钮标签的样式 */
 label.operation-button {
   color: white;  /* 按钮文字保持白色 */
+} 
+
+/* 修改自动填充时的背景色 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Firefox 的自动填充样式 */
+input:autofill {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Edge 的自动填充样式 */
+input:-internal-autofill-selected {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
 } 

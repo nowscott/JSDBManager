@@ -157,26 +157,30 @@ const App = () => {
         try {
           const jsonData = JSON.parse(e.target.result);
           if (jsonData && jsonData.symbols) {
+            // 处理版本号，移除 -beta 后缀
+            const version = (jsonData.version || "1.0.0").replace(/-beta$/, '');
+            
             // 添加默认值
             const newData = {
-              version: jsonData.version || "1.0.0",
-              // 如果没有 systemRanges，添加默认空结构
+              version: version,  // 使用处理后的版本号
               systemRanges: jsonData.systemRanges || {
                 ios: [],
                 android: [],
                 win: [],
                 mac: []
               },
-              // 处理符号数据
-              symbols: jsonData.symbols.map(({ description, ...symbol }) => ({
-                ...symbol,
+              // 处理符号数据，忽略 id 字段
+              symbols: jsonData.symbols.map(({ id, description, ...symbol }) => ({
+                symbol: symbol.symbol,
+                name: symbol.name || description,
                 pronunciation: symbol.pronunciation || '',
-                name: symbol.name || description
+                category: symbol.category || [],
+                searchTerms: symbol.searchTerms || [],
+                notes: symbol.notes || ''
               }))
             };
             
             setData(newData);
-            // 更新缓存
             localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
           } else {
             throw new Error('数据格式不正确');
@@ -218,12 +222,11 @@ const App = () => {
   // 修改符号保存函数
   const handleSymbolSave = (symbolData) => {
     let newSymbols;
-    if (symbolData.id) {
+    if (currentSymbol) {  // 如果是编辑现有符号
       newSymbols = data.symbols.map(s => 
-        s.id === symbolData.id ? symbolData : s
+        s.symbol === currentSymbol.symbol ? symbolData : s
       );
-    } else {
-      symbolData.id = uuidv4();
+    } else {  // 如果是添加新符号
       newSymbols = [...data.symbols, symbolData];
     }
     
@@ -253,16 +256,6 @@ const App = () => {
       };
     });
 
-    updateDataAndCache({ ...data, symbols: newSymbols });
-  };
-
-  // 修改 ID 重新生成函数
-  const handleRegenerateIds = () => {
-    const newSymbols = data.symbols.map(symbol => ({
-      ...symbol,
-      id: uuidv4()
-    }));
-    
     updateDataAndCache({ ...data, symbols: newSymbols });
   };
 
@@ -338,7 +331,7 @@ const App = () => {
     });
   };
 
-  const handleExportJson = () => {
+  const handleExportJson = (isBeta = false) => {
     // 先对符号进行去重，保留内容更丰富的记录
     const symbolMap = new Map();
     
@@ -359,10 +352,9 @@ const App = () => {
 
     // 创建一个按指定顺序排列字段的数据副本
     const sortedData = {
-      version: data.version,
-      systemRanges: data.systemRanges,  // 放在 version 后面
-      symbols: Array.from(symbolMap.values()).map(({ description, ...symbol }) => ({
-        id: symbol.id,
+      version: isBeta ? `${data.version}-beta` : data.version,
+      systemRanges: data.systemRanges,
+      symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
         symbol: symbol.symbol,
         name: symbol.name,
         pronunciation: symbol.pronunciation,
@@ -378,16 +370,13 @@ const App = () => {
       arrayMargins: false
     });
 
-    // 更新缓存
-    localStorage.setItem(CACHE_KEY, content);
-    localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().getTime().toString());
-
     // 导出文件
+    const fileName = isBeta ? 'data-beta.json' : 'data.json';
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'data.json';
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -521,6 +510,76 @@ const App = () => {
     updateDataAndCache(newData);
   };
 
+  const handleExportPinyinMap = () => {
+    // 收集所有汉字
+    const chineseChars = new Set();
+    data.symbols.forEach(symbol => {
+      // 从名称中收集汉字
+      if (symbol.name) {
+        [...symbol.name].forEach(char => {
+          if (/[\u4e00-\u9fa5]/.test(char)) {
+            chineseChars.add(char);
+          }
+        });
+      }
+      // 从搜索关键词中收集汉字
+      if (symbol.searchTerms) {
+        symbol.searchTerms.forEach(term => {
+          [...term].forEach(char => {
+            if (/[\u4e00-\u9fa5]/.test(char)) {
+              chineseChars.add(char);
+            }
+          });
+        });
+      }
+    });
+
+    // 生成拼音映射
+    const pinyinMap = {};
+    Array.from(chineseChars).sort().forEach(char => {
+      const py = pinyin(char, { 
+        toneType: 'none',
+        type: 'string',
+        separator: ''
+      });
+      pinyinMap[char] = py;
+    });
+
+    // 创建包含版本号的数据结构
+    const exportData = {
+      version: data.version,
+      pinyinMap: pinyinMap
+    };
+
+    // 生成 JSON 文件内容
+    const content = JSON.stringify(exportData, null, 2);
+
+    // 导出文件
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pinyin-map.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // 添加重置搜索词函数
+  const handleResetSearchTerms = () => {
+    const newSymbols = data.symbols.map(symbol => ({
+      ...symbol,
+      searchTerms: []  // 清空搜索词
+    }));
+
+    const newData = {
+      ...data,
+      symbols: newSymbols
+    };
+    updateDataAndCache(newData);
+  };
+
   if (isLoading) {
     return <div className="loading">加载中...</div>;
   }
@@ -530,9 +589,9 @@ const App = () => {
       <NavBar 
         onUpload={handleFileUpload}
         onExportJson={handleExportJson}
+        onExportPinyinMap={handleExportPinyinMap}
         onOpenRangeManager={() => setIsRangeManagerOpen(true)}
-        onAddPinyin={handleAddPinyin}
-        onRegenerateIds={handleRegenerateIds}
+        onResetSearchTerms={handleResetSearchTerms}
         onSort={handleSort}
         data={data}
         version={data.version}

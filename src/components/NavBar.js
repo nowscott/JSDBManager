@@ -4,9 +4,9 @@ const NavBar = ({
   onUpload, 
   onExportJson, 
   onOpenRangeManager, 
-  onAddPinyin, 
-  onRegenerateIds, 
+  onResetSearchTerms,
   onSort,
+  onExportPinyinMap,
   data,
   version,
   onUpdateVersion
@@ -78,12 +78,20 @@ const NavBar = ({
             <label htmlFor="file-input" className="menu-button">导入 JSON</label>
             <button 
               onClick={() => {
-                onExportJson();
+                onExportJson(false);
                 setIsMenuOpen(false);
               }} 
               className="menu-button"
               disabled={!data?.symbols?.length}
-            >导出 JSON</button>
+            >导出正式版</button>
+            <button 
+              onClick={() => {
+                onExportJson(true);
+                setIsMenuOpen(false);
+              }} 
+              className="menu-button"
+              disabled={!data?.symbols?.length}
+            >导出测试版</button>
             <button 
               onClick={() => {
                 onOpenRangeManager();
@@ -91,6 +99,14 @@ const NavBar = ({
               }}
               className="menu-button"
             >管理不支持区间</button>
+            <button 
+              onClick={() => {
+                onExportPinyinMap();
+                setIsMenuOpen(false);
+              }}
+              className="menu-button"
+              disabled={!data?.symbols?.length}
+            >导出拼音映射</button>
           </div>
         </div>
 
@@ -99,20 +115,12 @@ const NavBar = ({
           <div className="menu-group">
             <button 
               onClick={() => {
-                onAddPinyin();
+                onResetSearchTerms();
                 setIsMenuOpen(false);
               }}
               className="menu-button"
               disabled={!data?.symbols?.length}
-            >添加拼音</button>
-            <button 
-              onClick={() => {
-                onRegenerateIds();
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >生成新 ID</button>
+            >重置检索词</button>
           </div>
         </div>
 
