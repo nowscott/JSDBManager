@@ -69,30 +69,49 @@ const App = () => {
         parsedData.symbols = parsedData.symbols.map(symbol => ({
           ...symbol,
           pronunciation: symbol.pronunciation || '',
-          name: symbol.name || symbol.description  // 如果没有 name，使用 description
+          name: symbol.name || symbol.description
         }));
         setData(parsedData);
         setIsLoading(false);
         return;
       }
 
-      // 使用新的 CORS 代理获取数据
-      const response = await fetch(DATA_URL);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      // 先尝试直接访问原始URL
+      let response;
+      try {
+        response = await fetch(ORIGINAL_URL);
+        if (!response.ok) {
+          throw new Error('Direct access failed');
+        }
+      } catch (error) {
+        // 如果直接访问失败，使用代理
+        console.log('直接访问失败，使用代理...');
+        response = await fetch(DATA_URL);
+        if (!response.ok) {
+          throw new Error('Proxy access failed');
+        }
       }
 
       const newData = await response.json();
+      // 处理版本号，移除 -beta 后缀
+      const version = (newData.version || "1.0.0").replace(/-beta$/, '');
+      
       // 为每个符号添加读音属性，并删除描述属性
       newData.symbols = newData.symbols.map(({ description, ...symbol }) => ({
         ...symbol,
         pronunciation: '',
-        name: symbol.name || description  // 如果没有 name，使用 description 的值
+        name: symbol.name || description
       }));
       
+      // 更新数据和缓存时使用处理后的版本号
+      const processedData = {
+        ...newData,
+        version: version
+      };
+      
       // 更新数据和缓存
-      setData(newData);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+      setData(processedData);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(processedData));
       localStorage.setItem(CACHE_TIMESTAMP_KEY, currentTime.toString());
       
     } catch (error) {
