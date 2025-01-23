@@ -1,0 +1,108 @@
+.nav-bar {
+  position: relative;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+  margin: 0 -20px 20px -20px;
+}
+
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+}
+
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.menu-icon {
+  width: 18px;
+  height: 2px;
+  background: var(--text-primary);
+  position: relative;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 2px;
+  background: var(--text-primary);
+  left: 0;
+}
+
+.menu-icon::before {
+  top: -6px;
+}
+
+.menu-icon::after {
+  top: 6px;
+}
+
+.nav-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 250px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  display: none;
+  padding: 8px;
+}
+
+.nav-menu.open {
+  display: block;
+}
+
+.menu-section {
+  padding: 12px;
+}
+
+.menu-section h3 {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu-button {
+  text-align: left;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.menu-button:hover {
+  background: var(--bg-secondary);
+}
+
+.menu-button:disabled {
+  color: var(--text-secondary);
+  cursor: not-allowed;
+} 

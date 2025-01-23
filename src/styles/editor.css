@@ -1,0 +1,68 @@
+.editor-section {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0;
+}
+
+.editor-section h2 {
+  padding: 25px 20px;
+  margin: 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--bg-primary);
+  border-radius: 20px 20px 0 0;
+}
+
+.symbol-form {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-submit {
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.notes-container {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.notes-container textarea {
+  flex: 1;
+}
+
+.label-with-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.generate-notes-button {
+  padding: 2px 8px;
+  background-color: #FF9800;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  height: 20px;
+  line-height: 16px;
+  transition: all 0.2s ease;
+}
+
+.generate-notes-button:hover {
+  background-color: #F57C00;
+}
+
+.generate-notes-button:active {
+  transform: translateY(1px);
+} 

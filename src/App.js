@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import SymbolList from './components/SymbolList';
 import { pinyin } from 'pinyin-pro';
-import './styles.css';
+import './styles/index.css';
 import stringify from 'json-stringify-pretty-compact';
 import SystemRangeManager from './components/SystemRangeManager';
 import NavBar from './components/NavBar';

@@ -1,0 +1,157 @@
+.operation-button {
+  min-width: 140px;
+  height: 38px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #8e44ad;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.operation-button:hover {
+  background-color: #732d91;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(142, 68, 173, 0.2);
+}
+
+.operation-button:disabled {
+  background-color: #d5b8e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submit-button {
+  min-width: 160px;
+  height: 46px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  background-color: var(--button-bg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.submit-button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.submit-button:disabled {
+  background-color: var(--button-disabled);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 版本控制按钮组 */
+.version-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.version-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.version-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.version-number {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 2px 6px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+/* 版本控制按钮 */
+.version-button {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.version-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.version-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.version-button.major { 
+  background: linear-gradient(to bottom, #f44336, #d32f2f);
+}
+.version-button.major:hover { 
+  background: linear-gradient(to bottom, #d32f2f, #c62828);
+}
+
+.version-button.minor { 
+  background: linear-gradient(to bottom, #ff9800, #f57c00);
+}
+.version-button.minor:hover { 
+  background: linear-gradient(to bottom, #f57c00, #ef6c00);
+}
+
+.version-button.patch { 
+  background: linear-gradient(to bottom, #4caf50, #388e3c);
+}
+.version-button.patch:hover { 
+  background: linear-gradient(to bottom, #388e3c, #2e7d32);
+}
+
+/* 禁用状态统一样式 */
+.operation-button:disabled,
+.submit-button:disabled,
+.version-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+} 
