@@ -1,6 +1,6 @@
 .nav-bar {
   position: relative;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   z-index: 100;
   margin: 0 -20px 20px -20px;
