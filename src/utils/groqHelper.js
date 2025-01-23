@@ -12,6 +12,59 @@ const cozeClient = new CozeAPI({
   allowPersonalAccessTokenInBrowser: true
 });
 
+// Silicon Flow API 配置
+const siliconFlowConfig = {
+  apiKey: process.env.REACT_APP_SILICON_FLOW_API_KEY,
+  baseURL: 'https://api.siliconflow.cn/v1/chat/completions'
+};
+
+// 使用 Silicon Flow API 生成内容
+const generateWithSiliconFlow = async (prompt, systemPrompt) => {
+  try {
+    const response = await fetch(siliconFlowConfig.baseURL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${siliconFlowConfig.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "Qwen/Qwen2.5-7B-Instruct",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        frequency_penalty: 1,
+        max_tokens: 4096,
+        n: 1
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Silicon Flow API 请求失败: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('Silicon Flow API 调用失败:', error);
+    throw error;
+  }
+};
+
+// 清理文本，去除所有多余空格和换行，使其成为单行字符串
+const cleanText = (text) => {
+  return text
+    .replace(/\s+/g, ' ')  // 将所有空白字符（包括换行、制表符）替换为单个空格
+    .replace(/"/g, '"')    // 将英文双引号替换为中文双引号
+    .trim();               // 去除首尾空格
+};
+
 const schema = {
   properties: {
     basic_info: { 
@@ -47,7 +100,10 @@ export const generateSymbolNotes = async (symbol, symbolName) => {
         try {
           const parsedData = JSON.parse(cozeResponse.data);
           if (parsedData.google || parsedData.wiki) {
-            symbolInfo = `参考资料：\n\nGoogle资料：\n${parsedData.google}\n\nWiki资料：\n${parsedData.wiki}`;
+            // 限制参考资料的长度，优先使用wiki内容，因为wiki通常更精炼
+            const wikiContent = parsedData.wiki ? cleanText(parsedData.wiki).slice(0, 2048) : '';
+            const googleContent = parsedData.google ? cleanText(parsedData.google).slice(0, 1024) : '';
+            symbolInfo = `wiki:${wikiContent}\ngoogle:${googleContent}`;
             console.log('Coze 返回数据:', symbolInfo);
           } else {
             console.log('Coze 返回数据中没有 google 或 wiki 字段:', cozeResponse.data);
@@ -67,75 +123,88 @@ export const generateSymbolNotes = async (symbol, symbolName) => {
       console.log('将继续使用基本信息生成描述');
     }
 
-    // 使用 Groq 生成最终描述
-    console.log('使用 Groq 生成描述...');
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `你是一位精通中英双语、充满洞察力和创造力的符号专家，用乔布斯式的优雅语言阐述符号的魅力。我会提供英文参考资料，请你：
+    // 尝试使用 Groq 生成描述
+    try {
+      console.log('使用 Groq 生成描述...');
+      const completion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `你是一位精通中英双语的符号专家。请基于参考资料生成符号说明：
 
-1. 专业翻译处理：
-- 准确理解英文专业术语和概念
-- 采用信达雅的翻译原则，确保表达地道
-- 注意专业名词的规范译法
-- 避免生硬的直译和机械翻译
+1. 内容要求：
+- 总字数控制在120字以内（含标点）
+- 可以自由分段，用"第X段："标记每段开始
+- 内容完整且连贯，重点突出
 
-2. 深入解读参考资料：
-- 提取核心信息：准确理解英文描述的符号定义、用途、历史
-- 发现隐含价值：深入解读文化意义、演变脉络
-- 联想扩展：结合中国语境，建立与现代生活的联系
+2. 内容角度：
+- 符号的基本定义和主要用途
+- 历史背景或具体用法
+- 现代意义和应用场景
+- 文化内涵或技术价值
 
-3. 创造性思考：
-- 探索符号背后的设计哲学
-- 融合中西方视角，发掘符号的文化内涵
-- 思考符号在跨文化交流中的价值
-- 联系当代科技和全球化语境下的新应用
-
-4. 输出要求：
-必须遵循以下 JSON schema：
-${JSON.stringify(schema, null, 2)}
-
-5. 内容指南：
-- basic_info (50-60字)：
-  * 准确传达原文核心含义
-  * 用优美的中文表达符号的独特魅力
-  * 建立跨文化的情感共鸣
-
-- details (50-60字)：
-  * 货币、数学、宗教符号：深入探讨其文化内涵、历史演变和现代价值
-  * 标点、盲文、编辑符号：创新性地阐述其在现代传播中的重要性和多样应用
-
-6. 表达风格：
-- 保持专业性和学术严谨
-- 语言优美流畅，符合中文表达习惯
-- 避免生硬翻译，追求文化共鸣
-- 体现深刻的跨文化理解
-
-注意事项：
-- 确保专业术语翻译准确
-- 避免直译造成的表达不畅
-- 注意符号在中文语境下的特定含义
-- 保持学术性的同时确保可读性
+3. 表达要求：
+- 信达雅的翻译原则
+- 简洁专业的表达
+- 突出符号价值
+- 避免无效修饰词
+- 不要使用英文双引号，如需使用引号请使用中文引号"和"
 
 参考资料：
 ${symbolInfo || '暂无参考资料'}`
-        },
-        {
-          role: "user",
-          content: `请基于英文参考资料，以优美的中文为符号 "${symbol}"（${symbolName}）创作一段富有洞察力的介绍。注意信达雅的翻译原则。`
-        }
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.75,
-      max_tokens: 32768,
-      top_p: 0.9,
-      response_format: { type: "json_object" }
-    });
+          },
+          {
+            role: "user",
+            content: `请为符号 "${symbol}"（${symbolName}）创作介绍，总字数不超过120字。请用"第X段："（X为数字）标记每段内容。注意：不要使用英文双引号。`
+          }
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 4096,
+        top_p: 0.9
+      });
 
-    const result = JSON.parse(completion.choices[0]?.message?.content);
-    return [result.basic_info, result.details].join('\n\n');
-    
+      const content = completion.choices[0]?.message?.content.replace(/"/g, '"');
+      const segments = content.split(/第\d+段：/).filter(Boolean).map(s => s.trim());
+      return segments.join('\n\n');
+
+    } catch (groqError) {
+      // 如果 Groq 失败，使用 Silicon Flow 作为备用
+      console.log('Groq 生成失败，切换到 Silicon Flow API...');
+      console.error('Groq 错误:', groqError);
+
+      const systemPrompt = `你是一位精通中英双语的符号专家。请基于参考资料生成符号说明：
+
+1. 内容要求：
+- 总字数控制在120字以内（含标点）
+- 可以自由分段，用"第X段："标记每段开始
+- 内容完整且连贯，重点突出
+
+2. 内容角度：
+- 符号的基本定义和主要用途
+- 历史背景或具体用法
+- 现代意义和应用场景
+- 文化内涵或技术价值
+
+3. 表达要求：
+- 信达雅的翻译原则
+- 简洁专业的表达
+- 突出符号价值
+- 避免无效修饰词
+- 不要使用英文双引号
+
+请用"第X段："（X为数字）标记每段内容。`;
+
+      const userPrompt = `基于以下参考资料：
+${symbolInfo || '暂无参考资料'}
+
+请为符号 "${symbol}"（${symbolName}）创作介绍，总字数不超过120字。请用"第X段："（X为数字）标记每段内容。注意：不要使用英文双引号。`;
+
+      const siliconFlowResult = await generateWithSiliconFlow(userPrompt, systemPrompt);
+      console.log('Silicon Flow 返回结果:', siliconFlowResult);
+      const segments = siliconFlowResult.replace(/"/g, '"').split(/第\d+段：/).filter(Boolean).map(s => s.trim());
+      return segments.join('\n\n');
+    }
   } catch (error) {
     console.error('生成备注失败:', error);
     throw error;
