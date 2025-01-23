@@ -10,7 +10,7 @@ import NavBar from './components/NavBar';
 const CACHE_KEY = 'symbolData';
 const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
 const CACHE_DURATION = 30 * 60 * 1000; // 30分钟的缓存时间（毫秒）
-const ORIGINAL_URL = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json';
+const ORIGINAL_URL = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data-beta.json';
 const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 const DATA_URL = CORS_PROXY + encodeURIComponent(ORIGINAL_URL);
 
