@@ -17,10 +17,10 @@
 {
   "symbols": [
     {
-      "id": "unique-id",
       "symbol": "符号",
+      "name": "名称",
       "category": ["分类1", "分类2"],
-      "description": "描述",
+      "pronunciation": "读音",
       "notes": "备注",
       "searchTerms": ["关键词1", "关键词2"]
     }
