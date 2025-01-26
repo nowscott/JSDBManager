@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateSymbolNotes } from '../utils/groqHelper';
+import { generateSymbolNotes } from '../utils/symbolGen';
 import FloatingWindow from './FloatingWindow';
 
 const Editor = ({ symbol, onSave }) => {
