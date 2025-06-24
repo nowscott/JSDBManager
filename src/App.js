@@ -183,7 +183,7 @@ const App = () => {
       ...data,
       symbols: newSymbols
     };
-    updateDataAndCache(newData);
+    setData(newData);
     setCurrentSymbol(null);
   };
 
@@ -205,7 +205,7 @@ const App = () => {
       };
     });
 
-    updateDataAndCache({ ...data, symbols: newSymbols });
+    setData({ ...data, symbols: newSymbols });
   };
 
   const sortSymbolsByCategory = (result) => {
@@ -259,7 +259,7 @@ const App = () => {
         sortedSymbols = [...data.symbols];
     }
     
-    updateDataAndCache({
+    setData({
       ...data,
       symbols: sortedSymbols
     });
@@ -280,7 +280,7 @@ const App = () => {
     });
   };
 
-  const handleExportJson = (isBeta = false) => {
+  const handleExportJson = (exportType = 'data') => {
     // 先对符号进行去重，保留内容更丰富的记录
     const symbolMap = new Map();
     
@@ -300,52 +300,55 @@ const App = () => {
     });
 
     let sortedData;
-    let defaultFileName;
+    let fileName;
     
-    // 准备导出数据
-    sortedData = {
-      version: isBeta ? `${data.version}-beta` : data.version,
-      systemRanges: data.systemRanges,
-      symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
-        symbol: symbol.symbol,
-        name: symbol.name,
-        pronunciation: symbol.pronunciation,
-        category: symbol.category,
-        searchTerms: symbol.searchTerms,
-        notes: symbol.notes
-      }))
-    };
-    defaultFileName = isBeta ? 'data-beta.json' : 'data.json';
-
-    // 提供三个文件名选项
-    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
-    const fileNameOptions = [
-      defaultFileName,
-      `${defaultFileName.replace('.json', '')}-${currentDate}.json`,
-      `symbols-v${data.version}${isBeta ? '-beta' : ''}.json`
-    ];
-
-    // 创建选择对话框
-    const selectedFileName = prompt(
-      `请选择导出文件名：\n\n1. ${fileNameOptions[0]}\n2. ${fileNameOptions[1]}\n3. ${fileNameOptions[2]}\n\n请输入数字 1、2 或 3（或直接输入自定义文件名）：`,
-      '1'
-    );
-
-    if (selectedFileName === null) {
-      return; // 用户取消了导出
-    }
-
-    let finalFileName;
-    if (selectedFileName === '1') {
-      finalFileName = fileNameOptions[0];
-    } else if (selectedFileName === '2') {
-      finalFileName = fileNameOptions[1];
-    } else if (selectedFileName === '3') {
-      finalFileName = fileNameOptions[2];
+    // 根据导出类型准备数据
+    if (exportType === 'emoji') {
+      // 表情数据格式导出
+      sortedData = {
+        version: data.version,
+        emojis: Array.from(symbolMap.values()).map(symbol => ({
+          emoji: symbol.symbol,
+          name: symbol.name,
+          category: Array.isArray(symbol.category) ? symbol.category[0] : symbol.category,
+          keywords: symbol.searchTerms || [],
+          text: symbol.notes || ''
+        }))
+      };
+      fileName = 'emoji-data.json';
+    } else if (exportType === 'data-beta') {
+      // 测试版符号数据格式导出
+      sortedData = {
+        version: `${data.version}-beta`,
+        systemRanges: data.systemRanges,
+        symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
+          symbol: symbol.symbol,
+          name: symbol.name,
+          pronunciation: symbol.pronunciation,
+          category: symbol.category,
+          searchTerms: symbol.searchTerms,
+          notes: symbol.notes
+        }))
+      };
+      fileName = 'data-beta.json';
     } else {
-      // 用户输入了自定义文件名
-      finalFileName = selectedFileName.endsWith('.json') ? selectedFileName : selectedFileName + '.json';
+      // 正式版符号数据格式导出
+      sortedData = {
+        version: data.version,
+        systemRanges: data.systemRanges,
+        symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
+          symbol: symbol.symbol,
+          name: symbol.name,
+          pronunciation: symbol.pronunciation,
+          category: symbol.category,
+          searchTerms: symbol.searchTerms,
+          notes: symbol.notes
+        }))
+      };
+      fileName = 'data.json';
     }
+
+
 
     const content = stringify(sortedData, {
       indent: 2,
@@ -358,7 +361,7 @@ const App = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = finalFileName;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -476,7 +479,7 @@ const App = () => {
       symbols: newSymbols
     };
     
-    updateDataAndCache(newData);
+    setData(newData);
     
     if (currentSymbol && currentSymbol.symbol === symbolChar) {
       setCurrentSymbol(null);
@@ -489,7 +492,7 @@ const App = () => {
       ...data,
       systemRanges: newRanges
     };
-    updateDataAndCache(newData);
+    setData(newData);
   };
 
   const handleExportPinyinMap = () => {

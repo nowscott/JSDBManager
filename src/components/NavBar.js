@@ -78,20 +78,28 @@ const NavBar = ({
             <label htmlFor="file-input" className="menu-button">导入 JSON</label>
             <button 
                onClick={() => {
-                 onExportJson(false);
+                 onExportJson('data');
                  setIsMenuOpen(false);
                }} 
                className="menu-button"
                disabled={!data?.symbols?.length}
-             >导出正式版</button>
+             >导出 data.json</button>
              <button 
                onClick={() => {
-                 onExportJson(true);
+                 onExportJson('data-beta');
                  setIsMenuOpen(false);
                }} 
                className="menu-button"
                disabled={!data?.symbols?.length}
-             >导出测试版</button>
+             >导出 data-beta.json</button>
+             <button 
+               onClick={() => {
+                 onExportJson('emoji');
+                 setIsMenuOpen(false);
+               }} 
+               className="menu-button"
+               disabled={!data?.symbols?.length}
+             >导出 emoji-data.json</button>
             <button 
               onClick={() => {
                 onOpenRangeManager();
