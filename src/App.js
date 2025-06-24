@@ -10,9 +10,22 @@ import NavBar from './components/NavBar';
 const CACHE_KEY = 'symbolData';
 const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
 const CACHE_DURATION = 30 * 60 * 1000; // 30分钟的缓存时间（毫秒）
-const ORIGINAL_URL = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data-beta.json';
+
+// 数据源配置
+const DATA_SOURCES = {
+  symbols: {
+    name: '符号数据',
+    url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data-beta.json',
+    type: 'symbols'
+  },
+  emoji: {
+    name: '表情数据',
+    url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/emoji-data.json',
+    type: 'emoji'
+  }
+};
+
 const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-const DATA_URL = CORS_PROXY + encodeURIComponent(ORIGINAL_URL);
 
 const App = () => {
   const [data, setData] = useState({ 
@@ -29,10 +42,18 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isRangeManagerOpen, setIsRangeManagerOpen] = useState(false);
+  const [currentDataSource, setCurrentDataSource] = useState('symbols');
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // 监听数据源变化，自动加载新数据
+  useEffect(() => {
+    if (currentDataSource) {
+      loadData(currentDataSource);
+    }
+  }, [currentDataSource]);
 
   // 添加暗色模式检测
   useEffect(() => {
@@ -54,11 +75,14 @@ const App = () => {
     return () => darkModeMediaQuery.removeListener(handleColorSchemeChange);
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (dataSourceKey = currentDataSource) => {
     try {
+      const cacheKey = `${CACHE_KEY}_${dataSourceKey}`;
+      const timestampKey = `${CACHE_TIMESTAMP_KEY}_${dataSourceKey}`;
+      
       // 检查缓存
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const cachedData = localStorage.getItem(cacheKey);
+      const cachedTimestamp = localStorage.getItem(timestampKey);
       const currentTime = new Date().getTime();
 
       // 如果缓存存在且未过期
@@ -76,48 +100,77 @@ const App = () => {
         return;
       }
 
+      const dataSource = DATA_SOURCES[dataSourceKey];
+      if (!dataSource) {
+        throw new Error(`Unknown data source: ${dataSourceKey}`);
+      }
+
       // 先尝试直接访问原始URL
       let response;
       try {
-        response = await fetch(ORIGINAL_URL);
+        response = await fetch(dataSource.url);
         if (!response.ok) {
           throw new Error('Direct access failed');
         }
       } catch (error) {
         // 如果直接访问失败，使用代理
         console.log('直接访问失败，使用代理...');
-        response = await fetch(DATA_URL);
+        const proxyUrl = CORS_PROXY + encodeURIComponent(dataSource.url);
+        response = await fetch(proxyUrl);
         if (!response.ok) {
           throw new Error('Proxy access failed');
         }
       }
 
       const newData = await response.json();
-      // 处理版本号，移除 -beta 后缀
-      const version = (newData.version || "1.0.0").replace(/-beta$/, '');
-      
-      // 为每个符号添加读音属性，并删除描述属性
-      newData.symbols = newData.symbols.map(({ description, ...symbol }) => ({
-        ...symbol,
-        pronunciation: '',
-        name: symbol.name || description
-      }));
-      
-      // 更新数据和缓存时使用处理后的版本号
-      const processedData = {
-        ...newData,
-        version: version
-      };
+      let processedData;
+
+      if (dataSource.type === 'emoji') {
+        // 处理表情数据格式
+        processedData = {
+          version: newData.version || "1.0.0",
+          systemRanges: {
+            ios: [],
+            android: [],
+            win: [],
+            mac: []
+          },
+          symbols: (newData.emojis || newData.data || newData).map(emoji => ({
+            symbol: emoji.emoji || emoji.unicode || emoji.char,
+            name: emoji.name || emoji.annotation || emoji.description,
+            pronunciation: '',
+            category: emoji.category ? [emoji.category] : (emoji.group ? [emoji.group] : []),
+            searchTerms: emoji.keywords || emoji.tags || [],
+            notes: emoji.text || emoji.shortcode || ''
+          }))
+        };
+      } else {
+        // 处理符号数据格式
+        const version = (newData.version || "1.0.0").replace(/-beta$/, '');
+        
+        // 为每个符号添加读音属性，并删除描述属性
+        newData.symbols = newData.symbols.map(({ description, ...symbol }) => ({
+          ...symbol,
+          pronunciation: '',
+          name: symbol.name || description
+        }));
+        
+        processedData = {
+          ...newData,
+          version: version
+        };
+      }
       
       // 更新数据和缓存
       setData(processedData);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(processedData));
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, currentTime.toString());
+      localStorage.setItem(cacheKey, JSON.stringify(processedData));
+      localStorage.setItem(timestampKey, currentTime.toString());
       
     } catch (error) {
       console.error('Error loading data:', error);
       // 如果获取失败但有缓存，使用缓存的数据
-      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cacheKey = `${CACHE_KEY}_${dataSourceKey}`;
+      const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const parsedData = JSON.parse(cachedData);
         // 为缓存的数据也添加读音属性和名称属性
@@ -136,8 +189,18 @@ const App = () => {
   // 添加一个统一的缓存更新函数
   const updateDataAndCache = (newData) => {
     setData(newData);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
-    localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().getTime().toString());
+    const cacheKey = `${CACHE_KEY}_${currentDataSource}`;
+    const timestampKey = `${CACHE_TIMESTAMP_KEY}_${currentDataSource}`;
+    localStorage.setItem(cacheKey, JSON.stringify(newData));
+    localStorage.setItem(timestampKey, new Date().getTime().toString());
+  };
+
+  // 数据源切换函数
+  const handleDataSourceChange = (newDataSource) => {
+    if (newDataSource !== currentDataSource) {
+      setCurrentDataSource(newDataSource);
+      setIsLoading(true);
+    }
   };
 
   // 修改版本更新函数
@@ -172,20 +235,21 @@ const App = () => {
       reader.onload = (e) => {
         try {
           const jsonData = JSON.parse(e.target.result);
+          let newData;
+          
+          // 检测数据格式类型
           if (jsonData && jsonData.symbols) {
-            // 处理版本号，移除 -beta 后缀
+            // 符号数据格式
             const version = (jsonData.version || "1.0.0").replace(/-beta$/, '');
             
-            // 添加默认值
-            const newData = {
-              version: version,  // 使用处理后的版本号
+            newData = {
+              version: version,
               systemRanges: jsonData.systemRanges || {
                 ios: [],
                 android: [],
                 win: [],
                 mac: []
               },
-              // 处理符号数据，忽略 id 字段
               symbols: jsonData.symbols.map(({ id, description, ...symbol }) => ({
                 symbol: symbol.symbol,
                 name: symbol.name || description,
@@ -195,12 +259,34 @@ const App = () => {
                 notes: symbol.notes || ''
               }))
             };
+          } else if (jsonData && (jsonData.emojis || jsonData.data || Array.isArray(jsonData))) {
+            // 表情数据格式
+            const emojiArray = jsonData.emojis || jsonData.data || jsonData;
             
-            setData(newData);
-            localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+            newData = {
+              version: jsonData.version || "1.0.0",
+              systemRanges: {
+                ios: [],
+                android: [],
+                win: [],
+                mac: []
+              },
+              symbols: emojiArray.map(emoji => ({
+                symbol: emoji.emoji || emoji.unicode || emoji.char,
+                name: emoji.name || emoji.annotation || emoji.description,
+                pronunciation: '',
+                category: emoji.category ? [emoji.category] : (emoji.group ? [emoji.group] : []),
+                searchTerms: emoji.keywords || emoji.tags || [],
+                notes: emoji.text || emoji.shortcode || ''
+              }))
+            };
           } else {
-            throw new Error('数据格式不正确');
+            throw new Error('数据格式不正确，请确保文件包含符号数据或表情数据');
           }
+          
+          setData(newData);
+          const cacheKey = `${CACHE_KEY}_${currentDataSource}`;
+          localStorage.setItem(cacheKey, JSON.stringify(newData));
         } catch (error) {
           console.error('JSON 解析失败:', error);
           alert('JSON 解析失败: ' + error.message);
@@ -366,19 +452,38 @@ const App = () => {
       }
     });
 
-    // 创建一个按指定顺序排列字段的数据副本
-    const sortedData = {
-      version: isBeta ? `${data.version}-beta` : data.version,
-      systemRanges: data.systemRanges,
-      symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
-        symbol: symbol.symbol,
-        name: symbol.name,
-        pronunciation: symbol.pronunciation,
-        category: symbol.category,
-        searchTerms: symbol.searchTerms,
-        notes: symbol.notes
-      }))
-    };
+    let sortedData;
+    let fileName;
+    
+    if (currentDataSource === 'emoji') {
+      // 表情数据格式导出
+      sortedData = {
+        version: isBeta ? `${data.version}-beta` : data.version,
+        emojis: Array.from(symbolMap.values()).map(symbol => ({
+          emoji: symbol.symbol,
+          name: symbol.name,
+          category: Array.isArray(symbol.category) ? symbol.category[0] : symbol.category,
+          keywords: symbol.searchTerms || [],
+          text: symbol.notes || ''
+        }))
+      };
+      fileName = isBeta ? 'emoji-data-beta.json' : 'emoji-data.json';
+    } else {
+      // 符号数据格式导出
+      sortedData = {
+        version: isBeta ? `${data.version}-beta` : data.version,
+        systemRanges: data.systemRanges,
+        symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
+          symbol: symbol.symbol,
+          name: symbol.name,
+          pronunciation: symbol.pronunciation,
+          category: symbol.category,
+          searchTerms: symbol.searchTerms,
+          notes: symbol.notes
+        }))
+      };
+      fileName = isBeta ? 'data-beta.json' : 'data.json';
+    }
 
     const content = stringify(sortedData, {
       indent: 2,
@@ -387,7 +492,6 @@ const App = () => {
     });
 
     // 导出文件
-    const fileName = isBeta ? 'data-beta.json' : 'data.json';
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -625,6 +729,9 @@ const App = () => {
         data={data}
         version={data.version}
         onUpdateVersion={updateVersion}
+        currentDataSource={currentDataSource}
+        onDataSourceChange={handleDataSourceChange}
+        dataSources={DATA_SOURCES}
       />
       
       <div className="content-wrapper">
@@ -651,4 +758,4 @@ const App = () => {
   );
 };
 
-export default App; 
+export default App;

@@ -9,7 +9,10 @@ const NavBar = ({
   onExportPinyinMap,
   data,
   version,
-  onUpdateVersion
+  onUpdateVersion,
+  currentDataSource,
+  onDataSourceChange,
+  dataSources
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -65,6 +68,24 @@ const NavBar = ({
       </div>
 
       <div ref={menuRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+        <div className="menu-section">
+          <h3>数据源设置</h3>
+          <div className="menu-group">
+            {dataSources && Object.entries(dataSources).map(([key, source]) => (
+              <button
+                key={key}
+                onClick={() => {
+                  onDataSourceChange(key);
+                  setIsMenuOpen(false);
+                }}
+                className={`menu-button ${currentDataSource === key ? 'active' : ''}`}
+              >
+                {source.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="menu-section">
           <h3>数据操作</h3>
           <div className="menu-group">
@@ -158,4 +179,4 @@ const NavBar = ({
   );
 };
 
-export default NavBar; 
+export default NavBar;
