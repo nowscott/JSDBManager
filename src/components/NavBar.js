@@ -9,10 +9,7 @@ const NavBar = ({
   onExportPinyinMap,
   data,
   version,
-  onUpdateVersion,
-  currentDataSource,
-  onDataSourceChange,
-  dataSources
+  onUpdateVersion
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -69,24 +66,6 @@ const NavBar = ({
 
       <div ref={menuRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
         <div className="menu-section">
-          <h3>数据源设置</h3>
-          <div className="menu-group">
-            {dataSources && Object.entries(dataSources).map(([key, source]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  onDataSourceChange(key);
-                  setIsMenuOpen(false);
-                }}
-                className={`menu-button ${currentDataSource === key ? 'active' : ''}`}
-              >
-                {source.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="menu-section">
           <h3>数据操作</h3>
           <div className="menu-group">
             <input 
@@ -98,21 +77,21 @@ const NavBar = ({
             />
             <label htmlFor="file-input" className="menu-button">导入 JSON</label>
             <button 
-              onClick={() => {
-                onExportJson(false);
-                setIsMenuOpen(false);
-              }} 
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >导出正式版</button>
-            <button 
-              onClick={() => {
-                onExportJson(true);
-                setIsMenuOpen(false);
-              }} 
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >导出测试版</button>
+               onClick={() => {
+                 onExportJson(false);
+                 setIsMenuOpen(false);
+               }} 
+               className="menu-button"
+               disabled={!data?.symbols?.length}
+             >导出正式版</button>
+             <button 
+               onClick={() => {
+                 onExportJson(true);
+                 setIsMenuOpen(false);
+               }} 
+               className="menu-button"
+               disabled={!data?.symbols?.length}
+             >导出测试版</button>
             <button 
               onClick={() => {
                 onOpenRangeManager();

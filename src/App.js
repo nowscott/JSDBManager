@@ -7,25 +7,8 @@ import stringify from 'json-stringify-pretty-compact';
 import SystemRangeManager from './components/SystemRangeManager';
 import NavBar from './components/NavBar';
 
-const CACHE_KEY = 'symbolData';
-const CACHE_TIMESTAMP_KEY = 'symbolDataTimestamp';
-const CACHE_DURATION = 30 * 60 * 1000; // 30分钟的缓存时间（毫秒）
 
-// 数据源配置
-const DATA_SOURCES = {
-  symbols: {
-    name: '符号数据',
-    url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data-beta.json',
-    type: 'symbols'
-  },
-  emoji: {
-    name: '表情数据',
-    url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/emoji-data.json',
-    type: 'emoji'
-  }
-};
 
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 const App = () => {
   const [data, setData] = useState({ 
@@ -42,18 +25,10 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isRangeManagerOpen, setIsRangeManagerOpen] = useState(false);
-  const [currentDataSource, setCurrentDataSource] = useState('symbols');
-
   useEffect(() => {
-    loadData();
+    // 初始化空数据
+    setIsLoading(false);
   }, []);
-
-  // 监听数据源变化，自动加载新数据
-  useEffect(() => {
-    if (currentDataSource) {
-      loadData(currentDataSource);
-    }
-  }, [currentDataSource]);
 
   // 添加暗色模式检测
   useEffect(() => {
@@ -75,133 +50,7 @@ const App = () => {
     return () => darkModeMediaQuery.removeListener(handleColorSchemeChange);
   }, []);
 
-  const loadData = async (dataSourceKey = currentDataSource) => {
-    try {
-      const cacheKey = `${CACHE_KEY}_${dataSourceKey}`;
-      const timestampKey = `${CACHE_TIMESTAMP_KEY}_${dataSourceKey}`;
-      
-      // 检查缓存
-      const cachedData = localStorage.getItem(cacheKey);
-      const cachedTimestamp = localStorage.getItem(timestampKey);
-      const currentTime = new Date().getTime();
 
-      // 如果缓存存在且未过期
-      if (cachedData && cachedTimestamp && 
-          (currentTime - parseInt(cachedTimestamp)) < CACHE_DURATION) {
-        const parsedData = JSON.parse(cachedData);
-        // 为每个符号添加读音属性和名称属性
-        parsedData.symbols = parsedData.symbols.map(symbol => ({
-          ...symbol,
-          pronunciation: symbol.pronunciation || '',
-          name: symbol.name || symbol.description
-        }));
-        setData(parsedData);
-        setIsLoading(false);
-        return;
-      }
-
-      const dataSource = DATA_SOURCES[dataSourceKey];
-      if (!dataSource) {
-        throw new Error(`Unknown data source: ${dataSourceKey}`);
-      }
-
-      // 先尝试直接访问原始URL
-      let response;
-      try {
-        response = await fetch(dataSource.url);
-        if (!response.ok) {
-          throw new Error('Direct access failed');
-        }
-      } catch (error) {
-        // 如果直接访问失败，使用代理
-        console.log('直接访问失败，使用代理...');
-        const proxyUrl = CORS_PROXY + encodeURIComponent(dataSource.url);
-        response = await fetch(proxyUrl);
-        if (!response.ok) {
-          throw new Error('Proxy access failed');
-        }
-      }
-
-      const newData = await response.json();
-      let processedData;
-
-      if (dataSource.type === 'emoji') {
-        // 处理表情数据格式
-        processedData = {
-          version: newData.version || "1.0.0",
-          systemRanges: {
-            ios: [],
-            android: [],
-            win: [],
-            mac: []
-          },
-          symbols: (newData.emojis || newData.data || newData).map(emoji => ({
-            symbol: emoji.emoji || emoji.unicode || emoji.char,
-            name: emoji.name || emoji.annotation || emoji.description,
-            pronunciation: '',
-            category: emoji.category ? [emoji.category] : (emoji.group ? [emoji.group] : []),
-            searchTerms: emoji.keywords || emoji.tags || [],
-            notes: emoji.text || emoji.shortcode || ''
-          }))
-        };
-      } else {
-        // 处理符号数据格式
-        const version = (newData.version || "1.0.0").replace(/-beta$/, '');
-        
-        // 为每个符号添加读音属性，并删除描述属性
-        newData.symbols = newData.symbols.map(({ description, ...symbol }) => ({
-          ...symbol,
-          pronunciation: '',
-          name: symbol.name || description
-        }));
-        
-        processedData = {
-          ...newData,
-          version: version
-        };
-      }
-      
-      // 更新数据和缓存
-      setData(processedData);
-      localStorage.setItem(cacheKey, JSON.stringify(processedData));
-      localStorage.setItem(timestampKey, currentTime.toString());
-      
-    } catch (error) {
-      console.error('Error loading data:', error);
-      // 如果获取失败但有缓存，使用缓存的数据
-      const cacheKey = `${CACHE_KEY}_${dataSourceKey}`;
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-        // 为缓存的数据也添加读音属性和名称属性
-        parsedData.symbols = parsedData.symbols.map(symbol => ({
-          ...symbol,
-          pronunciation: symbol.pronunciation || '',
-          name: symbol.name || symbol.description
-        }));
-        setData(parsedData);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 添加一个统一的缓存更新函数
-  const updateDataAndCache = (newData) => {
-    setData(newData);
-    const cacheKey = `${CACHE_KEY}_${currentDataSource}`;
-    const timestampKey = `${CACHE_TIMESTAMP_KEY}_${currentDataSource}`;
-    localStorage.setItem(cacheKey, JSON.stringify(newData));
-    localStorage.setItem(timestampKey, new Date().getTime().toString());
-  };
-
-  // 数据源切换函数
-  const handleDataSourceChange = (newDataSource) => {
-    if (newDataSource !== currentDataSource) {
-      setCurrentDataSource(newDataSource);
-      setIsLoading(true);
-    }
-  };
 
   // 修改版本更新函数
   const updateVersion = (type) => {
@@ -226,7 +75,7 @@ const App = () => {
       ...data,
       version: newVersion
     };
-    updateDataAndCache(newData);
+    setData(newData);
   };
 
   const handleFileUpload = async (file) => {
@@ -285,8 +134,6 @@ const App = () => {
           }
           
           setData(newData);
-          const cacheKey = `${CACHE_KEY}_${currentDataSource}`;
-          localStorage.setItem(cacheKey, JSON.stringify(newData));
         } catch (error) {
           console.error('JSON 解析失败:', error);
           alert('JSON 解析失败: ' + error.message);
@@ -453,36 +300,51 @@ const App = () => {
     });
 
     let sortedData;
-    let fileName;
+    let defaultFileName;
     
-    if (currentDataSource === 'emoji') {
-      // 表情数据格式导出
-      sortedData = {
-        version: isBeta ? `${data.version}-beta` : data.version,
-        emojis: Array.from(symbolMap.values()).map(symbol => ({
-          emoji: symbol.symbol,
-          name: symbol.name,
-          category: Array.isArray(symbol.category) ? symbol.category[0] : symbol.category,
-          keywords: symbol.searchTerms || [],
-          text: symbol.notes || ''
-        }))
-      };
-      fileName = isBeta ? 'emoji-data-beta.json' : 'emoji-data.json';
+    // 准备导出数据
+    sortedData = {
+      version: isBeta ? `${data.version}-beta` : data.version,
+      systemRanges: data.systemRanges,
+      symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
+        symbol: symbol.symbol,
+        name: symbol.name,
+        pronunciation: symbol.pronunciation,
+        category: symbol.category,
+        searchTerms: symbol.searchTerms,
+        notes: symbol.notes
+      }))
+    };
+    defaultFileName = isBeta ? 'data-beta.json' : 'data.json';
+
+    // 提供三个文件名选项
+    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
+    const fileNameOptions = [
+      defaultFileName,
+      `${defaultFileName.replace('.json', '')}-${currentDate}.json`,
+      `symbols-v${data.version}${isBeta ? '-beta' : ''}.json`
+    ];
+
+    // 创建选择对话框
+    const selectedFileName = prompt(
+      `请选择导出文件名：\n\n1. ${fileNameOptions[0]}\n2. ${fileNameOptions[1]}\n3. ${fileNameOptions[2]}\n\n请输入数字 1、2 或 3（或直接输入自定义文件名）：`,
+      '1'
+    );
+
+    if (selectedFileName === null) {
+      return; // 用户取消了导出
+    }
+
+    let finalFileName;
+    if (selectedFileName === '1') {
+      finalFileName = fileNameOptions[0];
+    } else if (selectedFileName === '2') {
+      finalFileName = fileNameOptions[1];
+    } else if (selectedFileName === '3') {
+      finalFileName = fileNameOptions[2];
     } else {
-      // 符号数据格式导出
-      sortedData = {
-        version: isBeta ? `${data.version}-beta` : data.version,
-        systemRanges: data.systemRanges,
-        symbols: Array.from(symbolMap.values()).map(({ id, description, ...symbol }) => ({
-          symbol: symbol.symbol,
-          name: symbol.name,
-          pronunciation: symbol.pronunciation,
-          category: symbol.category,
-          searchTerms: symbol.searchTerms,
-          notes: symbol.notes
-        }))
-      };
-      fileName = isBeta ? 'data-beta.json' : 'data.json';
+      // 用户输入了自定义文件名
+      finalFileName = selectedFileName.endsWith('.json') ? selectedFileName : selectedFileName + '.json';
     }
 
     const content = stringify(sortedData, {
@@ -496,7 +358,7 @@ const App = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = finalFileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -710,7 +572,7 @@ const App = () => {
       ...data,
       symbols: newSymbols
     };
-    updateDataAndCache(newData);
+    setData(newData);
   };
 
   if (isLoading) {
@@ -729,9 +591,6 @@ const App = () => {
         data={data}
         version={data.version}
         onUpdateVersion={updateVersion}
-        currentDataSource={currentDataSource}
-        onDataSourceChange={handleDataSourceChange}
-        dataSources={DATA_SOURCES}
       />
       
       <div className="content-wrapper">
