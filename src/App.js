@@ -401,7 +401,7 @@ const App = () => {
   };
 
   const getFilteredSymbols = () => {
-    if (!searchTerm) return data.symbols;
+    if (!searchTerm) return [...data.symbols].reverse();
     
     const searchTermLower = searchTerm.toLowerCase();
     
@@ -468,7 +468,7 @@ const App = () => {
         content.includes(searchTermLower) || 
         content.includes(searchTermLower.replace(/\s+/g, ''))
       );
-    });
+    }).reverse();
   };
 
   // 修改删除符号函数

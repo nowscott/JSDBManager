@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { generateSymbolNotes } from '../utils/symbolGen';
-import FloatingWindow from './FloatingWindow';
 
 const Editor = ({ symbol, onSave }) => {
   const [formData, setFormData] = useState({
@@ -64,26 +62,7 @@ const Editor = ({ symbol, onSave }) => {
     }));
   };
 
-  const [generatedNote, setGeneratedNote] = useState('');
-  const [showFloatingWindow, setShowFloatingWindow] = useState(false);
 
-  const generateNotes = async () => {
-    try {
-      const note = await generateSymbolNotes(formData.symbol, formData.name);
-      setGeneratedNote(note);
-      setShowFloatingWindow(true);
-    } catch (error) {
-      alert('生成备注失败，请稍后重试');
-    }
-  };
-
-  const handleInsertNote = () => {
-    setFormData(prev => ({
-      ...prev,
-      notes: generatedNote
-    }));
-    setShowFloatingWindow(false);
-  };
 
   return (
     <div className="editor-section">
@@ -136,16 +115,7 @@ const Editor = ({ symbol, onSave }) => {
         </div>
         
         <div className="form-group">
-          <div className="label-with-button">
-            <label>备注</label>
-            <button 
-              type="button"
-              className="generate-notes-button"
-              onClick={generateNotes}
-            >
-              生成
-            </button>
-          </div>
+          <label>备注</label>
           <textarea
             name="notes"
             value={formData.notes}
@@ -172,15 +142,7 @@ const Editor = ({ symbol, onSave }) => {
         </div>
       </form>
       
-      {showFloatingWindow && (
-        <FloatingWindow
-          content={generatedNote}
-          onInsert={handleInsertNote}
-          onClose={() => setShowFloatingWindow(false)}
-        />
-      )}
-      
-      {/* ... 其他表单内容 ... */}
+
     </div>
   );
 };
