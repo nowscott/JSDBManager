@@ -6,6 +6,7 @@ import './styles/index.css';
 import stringify from 'json-stringify-pretty-compact';
 import SystemRangeManager from './components/SystemRangeManager';
 import NavBar from './components/NavBar';
+import { loadFromCache, debouncedSaveToCache, hasCachedData, getCacheInfo, clearCache } from './utils/cacheManager';
 
 
 
@@ -26,9 +27,28 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRangeManagerOpen, setIsRangeManagerOpen] = useState(false);
   useEffect(() => {
-    // 初始化空数据
+    // 尝试从缓存加载数据
+    if (hasCachedData()) {
+      try {
+        const cachedData = loadFromCache();
+        if (cachedData) {
+          setData(cachedData);
+          console.log('已从缓存加载数据');
+        }
+      } catch (error) {
+        console.error('加载缓存数据失败:', error);
+      }
+    }
     setIsLoading(false);
   }, []);
+
+  // 监听数据变化，自动保存到缓存
+  useEffect(() => {
+    // 只有在数据不为空且不在加载状态时才保存
+    if (!isLoading && data.symbols && data.symbols.length > 0) {
+      debouncedSaveToCache(data);
+    }
+  }, [data, isLoading]);
 
   // 添加暗色模式检测
   useEffect(() => {

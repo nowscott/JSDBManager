@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { getCacheInfo, clearCache } from '../utils/cacheManager';
 
 const NavBar = ({ 
   onUpload, 
@@ -12,8 +13,46 @@ const NavBar = ({
   onUpdateVersion
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cacheInfo, setCacheInfo] = useState(null);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+
+  // 获取缓存信息
+  useEffect(() => {
+    const updateCacheInfo = () => {
+      setCacheInfo(getCacheInfo());
+    };
+    
+    updateCacheInfo();
+    // 每次菜单打开时更新缓存信息
+    if (isMenuOpen) {
+      updateCacheInfo();
+    }
+  }, [isMenuOpen]);
+
+  // 清理缓存
+  const handleClearCache = () => {
+    if (window.confirm('确定要清理本地缓存吗？这将删除所有已保存的数据。')) {
+      clearCache();
+      setCacheInfo(null);
+      setIsMenuOpen(false);
+      alert('缓存已清理');
+    }
+  };
+
+  // 格式化文件大小
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // 格式化时间
+  const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleString('zh-CN');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -159,6 +198,27 @@ const NavBar = ({
               className="menu-button"
               disabled={!data?.symbols?.length}
             >按 Unicode 排序</button>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h3>缓存管理</h3>
+          <div className="menu-group">
+            {cacheInfo ? (
+              <div className="cache-info">
+                <div className="cache-detail">符号数量: {cacheInfo.symbolCount}</div>
+                <div className="cache-detail">缓存大小: {formatFileSize(cacheInfo.size)}</div>
+                <div className="cache-detail">更新时间: {formatTime(cacheInfo.timestamp)}</div>
+                <button 
+                  onClick={handleClearCache}
+                  className="menu-button cache-clear"
+                >清理缓存</button>
+              </div>
+            ) : (
+              <div className="cache-info">
+                <div className="cache-detail">暂无缓存数据</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
