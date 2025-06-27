@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/nowscott/JSDBManager/compare/v1.0.1...v1.1.0) (2025-06-27)
+
+
+### Features
+
+* **Editor:** 添加备注输入框并调整表单字段顺序 ([579a71a](https://github.com/nowscott/JSDBManager/commit/579a71a93e0051c2a1f40ec86d474b7bc2098d34))
+
 ## [1.0.1](https://github.com/nowscott/JSDBManager/compare/v1.0.0...v1.0.1) (2025-06-27)
 
 
