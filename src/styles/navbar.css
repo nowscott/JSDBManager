@@ -55,13 +55,15 @@
   position: absolute;
   top: 100%;
   left: 0;
-  width: 250px;
+  width: 280px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-top: none;
   box-shadow: 0 4px 8px var(--shadow-color);
   display: none;
   padding: 8px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .nav-menu.open {
@@ -69,7 +71,15 @@
 }
 
 .menu-section {
-  padding: 12px;
+  padding: 8px 12px;
+}
+
+.menu-section:first-child {
+  padding-top: 4px;
+}
+
+.menu-section:last-child {
+  padding-bottom: 4px;
 }
 
 .menu-section h3 {
@@ -116,9 +126,82 @@
   background: var(--primary-color-hover);
 }
 
+/* 折叠功能样式 */
+.section-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.section-header:hover {
+  color: var(--primary-color);
+}
+
+.expand-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  color: var(--text-secondary);
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* 紧凑布局样式 */
+.button-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.button-row:last-child {
+  margin-bottom: 0;
+}
+
+.menu-button.compact {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 12px;
+  text-align: center;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* 缓存管理样式 */
 .cache-info {
   padding: 8px 0;
+}
+
+.cache-info.compact {
+  padding: 4px 0;
+}
+
+.cache-stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cache-stat {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex: 1;
+  text-align: center;
+}
+
+.cache-time {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-align: center;
 }
 
 .cache-detail {
@@ -126,6 +209,7 @@
   color: var(--text-secondary);
   margin-bottom: 4px;
   padding: 2px 0;
+  text-align: center;
 }
 
 .cache-detail:last-of-type {
@@ -137,6 +221,12 @@
   color: white;
   font-size: 12px;
   padding: 6px 12px;
+  width: 100%;
+}
+
+.menu-button.cache-clear.compact {
+  padding: 4px 8px;
+  font-size: 11px;
 }
 
 .menu-button.cache-clear:hover {

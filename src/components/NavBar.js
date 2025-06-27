@@ -14,8 +14,20 @@ const NavBar = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cacheInfo, setCacheInfo] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({
+    dataOps: true,
+    tools: false,
+    cache: false
+  });
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // 获取缓存信息
   useEffect(() => {
@@ -104,122 +116,150 @@ const NavBar = ({
       </div>
 
       <div ref={menuRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+        {/* 数据操作 - 默认展开 */}
         <div className="menu-section">
-          <h3>数据操作</h3>
-          <div className="menu-group">
-            <input 
-              type="file" 
-              accept=".json"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-              id="file-input"
-            />
-            <label htmlFor="file-input" className="menu-button">导入 JSON</label>
-            <button 
-               onClick={() => {
-                 onExportJson('data');
-                 setIsMenuOpen(false);
-               }} 
-               className="menu-button"
-               disabled={!data?.symbols?.length}
-             >导出 data.json</button>
-             <button 
-               onClick={() => {
-                 onExportJson('data-beta');
-                 setIsMenuOpen(false);
-               }} 
-               className="menu-button"
-               disabled={!data?.symbols?.length}
-             >导出 data-beta.json</button>
-             <button 
-               onClick={() => {
-                 onExportJson('emoji');
-                 setIsMenuOpen(false);
-               }} 
-               className="menu-button"
-               disabled={!data?.symbols?.length}
-             >导出 emoji-data.json</button>
-            <button 
-              onClick={() => {
-                onOpenRangeManager();
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-            >管理不支持区间</button>
-            <button 
-              onClick={() => {
-                onExportPinyinMap();
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >导出拼音映射</button>
-          </div>
-        </div>
-
-        <div className="menu-section">
-          <h3>数据处理</h3>
-          <div className="menu-group">
-            <button 
-              onClick={() => {
-                onResetSearchTerms();
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >重置检索词</button>
-          </div>
-        </div>
-
-        <div className="menu-section">
-          <h3>排序功能</h3>
-          <div className="menu-group">
-            <button 
-              onClick={() => {
-                onSort('notes');
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >按备注长度排序</button>
-            <button 
-              onClick={() => {
-                onSort('category');
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >按类别排序</button>
-            <button 
-              onClick={() => {
-                onSort('unicode');
-                setIsMenuOpen(false);
-              }}
-              className="menu-button"
-              disabled={!data?.symbols?.length}
-            >按 Unicode 排序</button>
-          </div>
-        </div>
-
-        <div className="menu-section">
-          <h3>缓存管理</h3>
-          <div className="menu-group">
-            {cacheInfo ? (
-              <div className="cache-info">
-                <div className="cache-detail">符号数量: {cacheInfo.symbolCount}</div>
-                <div className="cache-detail">缓存大小: {formatFileSize(cacheInfo.size)}</div>
-                <div className="cache-detail">更新时间: {formatTime(cacheInfo.timestamp)}</div>
+          <h3 className="section-header" onClick={() => toggleSection('dataOps')}>
+            <span className={`expand-icon ${expandedSections.dataOps ? 'expanded' : ''}`}>▶</span>
+            数据操作
+          </h3>
+          {expandedSections.dataOps && (
+            <div className="menu-group">
+              <input 
+                type="file" 
+                accept=".json"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                id="file-input"
+              />
+              <div className="button-row">
+                <label htmlFor="file-input" className="menu-button compact">导入</label>
                 <button 
-                  onClick={handleClearCache}
-                  className="menu-button cache-clear"
-                >清理缓存</button>
+                   onClick={() => {
+                     onExportJson('data');
+                     setIsMenuOpen(false);
+                   }} 
+                   className="menu-button compact"
+                   disabled={!data?.symbols?.length}
+                   title="导出 data.json"
+                 >导出</button>
+                 <button 
+                   onClick={() => {
+                     onExportJson('data-beta');
+                     setIsMenuOpen(false);
+                   }} 
+                   className="menu-button compact"
+                   disabled={!data?.symbols?.length}
+                   title="导出 data-beta.json"
+                 >Beta</button>
+                 <button 
+                   onClick={() => {
+                     onExportJson('emoji');
+                     setIsMenuOpen(false);
+                   }} 
+                   className="menu-button compact"
+                   disabled={!data?.symbols?.length}
+                   title="导出 emoji-data.json"
+                 >Emoji</button>
               </div>
-            ) : (
-              <div className="cache-info">
-                <div className="cache-detail">暂无缓存数据</div>
+              <div className="button-row">
+                <button 
+                  onClick={() => {
+                    onOpenRangeManager();
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                >系统区间</button>
+                <button 
+                  onClick={() => {
+                    onExportPinyinMap();
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                  disabled={!data?.symbols?.length}
+                >拼音映射</button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* 工具功能 - 默认折叠 */}
+        <div className="menu-section">
+          <h3 className="section-header" onClick={() => toggleSection('tools')}>
+            <span className={`expand-icon ${expandedSections.tools ? 'expanded' : ''}`}>▶</span>
+            工具功能
+          </h3>
+          {expandedSections.tools && (
+            <div className="menu-group">
+              <div className="button-row">
+                <button 
+                  onClick={() => {
+                    onResetSearchTerms();
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                  disabled={!data?.symbols?.length}
+                >重置检索词</button>
+              </div>
+              <div className="button-row">
+                <button 
+                  onClick={() => {
+                    onSort('notes');
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                  disabled={!data?.symbols?.length}
+                  title="按备注长度排序"
+                >备注排序</button>
+                <button 
+                  onClick={() => {
+                    onSort('category');
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                  disabled={!data?.symbols?.length}
+                  title="按类别排序"
+                >类别排序</button>
+                <button 
+                  onClick={() => {
+                    onSort('unicode');
+                    setIsMenuOpen(false);
+                  }}
+                  className="menu-button compact"
+                  disabled={!data?.symbols?.length}
+                  title="按 Unicode 排序"
+                >Unicode排序</button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 缓存管理 - 默认折叠 */}
+        <div className="menu-section">
+          <h3 className="section-header" onClick={() => toggleSection('cache')}>
+            <span className={`expand-icon ${expandedSections.cache ? 'expanded' : ''}`}>▶</span>
+            缓存管理
+          </h3>
+          {expandedSections.cache && (
+            <div className="menu-group">
+              {cacheInfo ? (
+                <div className="cache-info compact">
+                  <div className="cache-stats">
+                    <span className="cache-stat">符号: {cacheInfo.symbolCount}</span>
+                    <span className="cache-stat">大小: {formatFileSize(cacheInfo.size)}</span>
+                  </div>
+                  <div className="cache-time">{formatTime(cacheInfo.timestamp)}</div>
+                  <button 
+                    onClick={handleClearCache}
+                    className="menu-button cache-clear compact"
+                  >清理缓存</button>
+                </div>
+              ) : (
+                <div className="cache-info compact">
+                  <div className="cache-detail">暂无缓存数据</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </nav>
