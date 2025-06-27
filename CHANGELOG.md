@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/nowscott/JSDBManager/compare/v1.0.0...v1.0.1) (2025-06-27)
+
+
+### Bug Fixes
+
+* 默认展开导航栏的tools和cache部分 ([c193028](https://github.com/nowscott/JSDBManager/commit/c193028c7d621109b710a8b57a88fc6ad56cd3fd))
+
 # 1.0.0 (2025-06-27)
 
 
