@@ -16,8 +16,8 @@ const NavBar = ({
   const [cacheInfo, setCacheInfo] = useState(null);
   const [expandedSections, setExpandedSections] = useState({
     dataOps: true,
-    tools: false,
-    cache: false
+    tools: true,
+    cache: true
   });
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
