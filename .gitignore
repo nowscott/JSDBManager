@@ -40,3 +40,5 @@ yarn-error.log*
 # 所有以.开头的文件和目录
 .*
 !.gitignore  # 但是保留 .gitignore 文件 
+!.github
+!.releaserc.json
