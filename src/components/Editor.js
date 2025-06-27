@@ -102,6 +102,16 @@ const Editor = ({ symbol, onSave }) => {
             required
           />
         </div>
+        
+        <div className="form-group">
+          <label>备注</label>
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            autoComplete="off"
+          />
+        </div>
 
         <div className="form-group">
           <label>读音</label>
@@ -109,16 +119,6 @@ const Editor = ({ symbol, onSave }) => {
             type="text"
             name="pronunciation"
             value={formData.pronunciation}
-            onChange={handleChange}
-            autoComplete="off"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>备注</label>
-          <textarea
-            name="notes"
-            value={formData.notes}
             onChange={handleChange}
             autoComplete="off"
           />
