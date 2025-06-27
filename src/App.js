@@ -153,6 +153,8 @@ const App = () => {
             throw new Error('数据格式不正确，请确保文件包含符号数据或表情数据');
           }
           
+          // 清理缓存，避免与新导入的数据冲突
+          clearCache();
           setData(newData);
         } catch (error) {
           console.error('JSON 解析失败:', error);
